@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="Common.props" />
+  <PropertyGroup>
+    <AssemblyName>ExtensaoZero.Tests</AssemblyName>
+    <DefineConstants>$(DefineConstants);UNITY_EDITOR;UNITY_INCLUDE_TESTS</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(ProjectRoot)Tests/**/*.cs" />
+    <Reference Include="$(Cache)ui/lib/UnityEngine.UI.dll" Private="false" />
+    <Reference Include="$(Cache)nunit/lib/netstandard2.0/nunit.framework.dll" Private="false" />
+    <ProjectReference Include="Stubs.csproj" />
+    <ProjectReference Include="Runtime.csproj" AdditionalProperties="ExtraDefines=UNITY_EDITOR" />
+  </ItemGroup>
+</Project>

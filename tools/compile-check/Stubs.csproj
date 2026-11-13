@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="Common.props" />
+  <PropertyGroup><AssemblyName>EZStubs</AssemblyName></PropertyGroup>
+  <ItemGroup><Compile Include="stubs/*.cs" /></ItemGroup>
+</Project>

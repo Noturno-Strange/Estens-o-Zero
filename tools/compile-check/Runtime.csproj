@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="Common.props" />
+  <PropertyGroup>
+    <AssemblyName>ExtensaoZero.Runtime</AssemblyName>
+    <DefineConstants>$(DefineConstants);UNITY_6000_0_OR_NEWER;UNITY_STANDALONE_LINUX;$(ExtraDefines)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(ProjectRoot)Scripts/**/*.cs" />
+    <Reference Include="$(Cache)ui/lib/UnityEngine.UI.dll" Private="false" />
+    <ProjectReference Include="Stubs.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(ExtraDefines)'=='UNITY_EDITOR'">
+    <Reference Include="$(Cache)sdk/lib/UnityEditor.dll" Private="false" />
+  </ItemGroup>
+</Project>

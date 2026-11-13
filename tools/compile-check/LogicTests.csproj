@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Executa de verdade (NUnit, .NET 8) os testes EditMode que só usam lógica pura. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>$(NoWarn);MSB3277;NU1701;CS1701;CS1702</NoWarn>
+    <BaseOutputPath>bin-logic/</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj-logic/</BaseIntermediateOutputPath>
+    <Cache>$(MSBuildThisFileDirectory).cache/</Cache>
+    <ProjectRoot>$(MSBuildThisFileDirectory)../../Assets/_Project/</ProjectRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(ProjectRoot)Tests/EditMode/CampaignRulesTests.cs" />
+    <Compile Include="$(ProjectRoot)Tests/EditMode/NetworkProtocolTests.cs" />
+    <Compile Include="$(ProjectRoot)Tests/EditMode/LineBusyRulesTests.cs" />
+    <Compile Include="$(ProjectRoot)Tests/EditMode/SessionCodecTests.cs" />
+    <Compile Include="$(ProjectRoot)Tests/EditMode/LayerDistributorTests.cs" />
+    <Compile Include="$(ProjectRoot)Tests/EditMode/SwitchboardRulesTests.cs" />
+    <Reference Include="bin/Debug/ExtensaoZero.Runtime.dll" />
+    <Reference Include="bin/Debug/EZStubs.dll" />
+    <Reference Include="$(Cache)mod/lib/net35/UnityEngine.dll" />
+    <Reference Include="$(Cache)mod/lib/net35/UnityEngine.CoreModule.dll" />
+  </ItemGroup>
+</Project>

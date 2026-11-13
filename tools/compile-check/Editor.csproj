@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="Common.props" />
+  <PropertyGroup>
+    <AssemblyName>ExtensaoZero.Editor</AssemblyName>
+    <DefineConstants>$(DefineConstants);UNITY_EDITOR;UNITY_6000_0_OR_NEWER</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(ProjectRoot)Editor/**/*.cs" />
+    <Reference Include="$(Cache)ui/lib/UnityEngine.UI.dll" Private="false" />
+    <Reference Include="$(Cache)sdk/lib/UnityEditor.dll" Private="false" />
+    <ProjectReference Include="Stubs.csproj" />
+    <ProjectReference Include="Runtime.csproj" AdditionalProperties="ExtraDefines=UNITY_EDITOR" />
+  </ItemGroup>
+</Project>

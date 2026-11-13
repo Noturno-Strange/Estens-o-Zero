@@ -3,3 +3,6 @@ bin/
 obj/
 bin-logic/
 obj-logic/
+
+# Os projetos desta ferramenta são versionados (o .gitignore da raiz ignora *.csproj da Unity).
+!*.csproj
