@@ -19,11 +19,12 @@ Verificar módulos:
 ./scripts/build-linux.sh
 ```
 
-O script chama o Unity em batch mode:
+O script procura a Unity da versão fixada (ou usa a variável `UNITY=/caminho/para/Editor/Unity`) e a chama em batch mode:
 
 ```bash
 "$UNITY" -batchmode -nographics -quit \
   -projectPath "$ROOT" \
+  -buildTarget Linux64 \
   -executeMethod ExtensaoZero.EditorTools.BuildScript.BuildLinux \
   -logFile "$ROOT/Logs/build-linux.log"
 ```
@@ -31,20 +32,20 @@ O script chama o Unity em batch mode:
 Saída:
 
 ```
-Build/Linux/ExtensaoZero.x86_64
-Build/Linux/ExtensaoZero_Data/
+Builds/Linux/ExtensaoZero.x86_64
+Builds/Linux/ExtensaoZero_Data/
 ```
 
 ## 3. Build pelo editor
 
 1. Abra o projeto.
-2. Menu **Extensão Zero → Build → Linux x86_64**.
-3. Escolha a pasta de saída.
+2. Menu **Extensao Zero → Build Linux** (ou **Build Linux (Development)**).
+3. A saída vai para `Builds/Linux/`.
 
 ## 4. Executar
 
 ```bash
-cd Build/Linux
+cd Builds/Linux
 ./ExtensaoZero.x86_64
 ```
 
@@ -106,7 +107,7 @@ O multiplayer usa UDP. Porta padrão: **7777** (configurável no lobby).
 | Sem áudio | dispositivo padrão do sistema | verificar `pactl info`; testar outro dispositivo |
 | Build falha em `BuildScript` | módulo Linux ausente | instalar Linux Build Support |
 | Erro de licença | licença não ativada | abrir Unity Hub e ativar Unity Personal |
-| Shader rosa | URP não configurado | rodar `Extensão Zero → Setup Project` |
+| Shader rosa | URP não configurado | rodar `Extensao Zero → Setup Project` |
 | Cliente não conecta | porta/firewall/NAT | verificar IP, porta, `ufw`, encaminhamento |
 | FPS baixo | qualidade/sombras | reduzir para Baixa, desligar sombras |
 

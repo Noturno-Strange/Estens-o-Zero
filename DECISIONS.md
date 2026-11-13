@@ -36,7 +36,7 @@
 
 **Contexto:** o projeto proíbe infraestrutura central e não quer esconder limitações de NAT.
 
-**Decisão:** conexão direta; descoberta LAN por broadcast; convite com IP/porta/chave. CGNAT/NAT restritivo é documentado como limitação.
+**Decisão:** conexão direta; descoberta LAN por broadcast; convite com IP/porta/chave (convite colável ainda não implementado; hoje IP, porta e chave são digitados). CGNAT/NAT restritivo é documentado como limitação.
 
 **Consequências:** alguns jogadores não conseguirão conectar sem port forwarding. Isso é honesto e explícito.
 

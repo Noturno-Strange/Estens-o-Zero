@@ -44,6 +44,7 @@
 - [x] Salvamento local
 
 **Pendente de validação:** build Linux nativo, sessão de jogo manual, medição de desempenho.
+Scripts de apoio: `./scripts/run-tests.sh` e `./scripts/build-linux.sh`.
 
 ## Fase 3 — Multiplayer 🟡 (base implementada)
 
@@ -56,6 +57,7 @@
 - [x] Distribuição de camadas
 - [x] Estado compartilhado da missão
 - [x] Tratamento básico de desconexão
+- [ ] Convite colável (`EZ1:`) e chave de sessão aleatória
 - [ ] Teste real com 2, 3 e 4 jogadores
 - [ ] Reconexão automática
 - [ ] UPnP opcional com consentimento

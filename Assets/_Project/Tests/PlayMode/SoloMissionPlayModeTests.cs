@@ -20,7 +20,7 @@ namespace ExtensaoZero.Tests
     /// </summary>
     public sealed class SoloMissionPlayModeTests
     {
-        private const string ShotDirectory = "/tmp/opencode/shots";
+        private static readonly string ShotDirectory = Path.Combine(Path.GetTempPath(), "extensao-zero-shots");
 
         private bool m_HadSave;
         private byte[] m_SaveBackup;

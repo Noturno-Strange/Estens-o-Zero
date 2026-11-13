@@ -21,19 +21,21 @@ Proibido como dependência obrigatória: Relay, Lobby, Matchmaker, servidores de
 1. Jogador escolhe **Criar partida**.
 2. `NetworkBootstrap` inicia o host na porta configurada (padrão UDP 7777).
 3. O jogo exibe os endereços locais (LAN) e, se disponível, o endereço público informado/configurado.
-4. Gera uma chave de sessão aleatória (6 caracteres alfanuméricos) e um convite.
-5. O anfitrião compartilha o convite por fora do jogo.
+4. Usa a chave de sessão digitada pelo anfitrião (padrão `EZ-214`).
+5. O anfitrião compartilha IP, porta e chave por fora do jogo.
 
 ### Entrar
 
-1. Jogador cola o convite ou informa IP e porta.
-2. `SessionCodec` interpreta o convite.
+1. Jogador informa IP, porta e chave.
+2. `SessionCodec` normaliza a chave e envia apenas o hash.
 3. Cliente conecta via Unity Transport.
 4. O payload de aprovação contém a chave de sessão.
 5. Host valida a chave, o limite de jogadores e se a missão ainda não começou.
 6. Entra no lobby.
 
-### Formato do convite
+### Formato do convite (planejado — não implementado)
+
+> Ainda não existe no código: hoje não há geração de chave aleatória nem convite colável. A conexão é feita digitando IP, porta e chave.
 
 ```
 EZ1:<base64url(JSON)>

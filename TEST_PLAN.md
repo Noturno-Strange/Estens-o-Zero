@@ -14,12 +14,19 @@ Executar:
 
 | Suíte | Cobre |
 |---|---|
-| `SessionCodecTests` | codificar/decodificar convite, versão inválida, chave, IPv6, porta |
+| `SessionCodecTests` | normalização da chave, validação de tamanho, hash determinístico |
 | `LayerDistributorTests` | distribuição para 1–4 jogadores, cobertura das 4 camadas, sem duplicação indevida |
-| `NotebookSystemTests` | registrar, deduplicar, ordenar, persistir evidências |
-| `TensionDirectorTests` | cooldowns, tensão mínima, variedade, respeito a “reduzir intensidade” |
-| `SwitchboardLogicTests` | validação 214→0, rejeição 214→9, desconexão, contaminação |
-| `MissionFlowTests` | avanço de etapas, condição de conclusão, reinício |
+| `NotebookModelTests` | registrar, deduplicar, rejeitar id vazio, anotações locais |
+| `TensionSelectorTests` | faixa de tensão, etapa da missão, sem repetição, cooldown por evento |
+| `SwitchboardRulesTests` | extensões válidas, solução 214↔0, rejeição de mesma extensão, linha 9 contaminada |
+
+PlayMode (`./scripts/run-tests.sh playmode`, precisa de GPU/servidor gráfico):
+
+| Suíte | Cobre |
+|---|---|
+| `SoloMissionPlayModeTests` | fluxo da primeira missão no modo individual; salva capturas em `$TMPDIR/extensao-zero-shots` |
+
+Ainda **não existem** testes automatizados para: fluxo de etapas da missão isolado, persistência do caderno, aplicação de “reduzir intensidade” e desconexão da central.
 
 Critérios: todos verdes, sem exceções, sem warnings de compilação.
 
@@ -105,8 +112,8 @@ Requer dois processos ou duas máquinas.
 ./ExtensaoZero.x86_64 -screen-width 1280 -screen-height 720
 ```
 
-- [ ] Host cria partida; vê IP local, porta e convite.
-- [ ] Cliente cola convite e entra.
+- [ ] Host cria partida; vê IP local, porta e chave.
+- [ ] Cliente informa IP, porta e chave e entra.
 - [ ] Lobby mostra 2 jogadores.
 - [ ] Host inicia; ambos veem o mundo.
 - [ ] Movimento remoto sincroniza.

@@ -68,21 +68,22 @@ Também é possível abrir pelo Unity Hub e selecionar a versão 6000.3.28f1.
 ./scripts/build-linux.sh
 ```
 
-O build sai em `Build/Linux/ExtensaoZero.x86_64`. Instruções detalhadas em [LINUX_BUILD.md](LINUX_BUILD.md).
+O build sai em `Builds/Linux/ExtensaoZero.x86_64` (use `--dev` para um build de desenvolvimento com profiler). Instruções detalhadas em [LINUX_BUILD.md](LINUX_BUILD.md).
 
 ## Testes
 
 ```bash
-./scripts/run-tests.sh
+./scripts/run-tests.sh            # EditMode (padrão)
+./scripts/run-tests.sh playmode   # fluxo da missão solo; precisa de GPU/servidor gráfico
 ```
 
-Os testes EditMode cobrem distribuição de camadas, codificação de convite, sessão, caderno e regras do Diretor de Tensão. Veja [TEST_PLAN.md](TEST_PLAN.md).
+Os testes EditMode cobrem distribuição de camadas, chave de sessão, caderno, regras da central e seleção de eventos do Diretor de Tensão. O teste PlayMode percorre a primeira missão no modo individual. Resultados em `Logs/test-results-*.xml`. Veja [TEST_PLAN.md](TEST_PLAN.md).
 
 ## Estrutura
 
 ```
 Assets/_Project/
-  Editor/            setup do projeto, build, validação
+  Editor/            setup do projeto, build
   Scripts/
     Core/            bootstrap, estado de jogo, configurações, salvamento
     Player/          controlador FPS, equipamentos, lanterna
@@ -97,7 +98,9 @@ Assets/_Project/
     UI/              HUD, menu, lobby, caderno, configurações
   Scenes/            Bootstrap (cena única da fatia)
   Settings/          URP, volume, qualidade
-  Tests/EditMode/    testes automatizados
+  Tests/EditMode/    testes automatizados de lógica
+  Tests/PlayMode/    teste de fumaça da missão solo
+scripts/             build Linux e execução de testes em batch mode
 ```
 
 ## Documentação
