@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NoWarn>$(NoWarn);CS1701;CS1702;MSB3277;NU1701</NoWarn>
+    <OutputType>Library</OutputType>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Cache>$(MSBuildThisFileDirectory).cache/</Cache>
+    <ProjectRoot>$(MSBuildThisFileDirectory)../../Assets/_Project/</ProjectRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="$(Cache)mod/lib/net35/*.dll" Private="false" />
+  </ItemGroup>
+</Project>
