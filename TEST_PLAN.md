@@ -2,177 +2,154 @@
 
 ## 1. Filosofia
 
-Nenhuma funcionalidade é considerada pronta apenas porque o código foi escrito. Este plano separa o que foi realmente executado do que depende de validação local.
+Nenhuma funcionalidade é considerada pronta só porque o código foi escrito. Este plano separa o que foi realmente executado do que depende de validação local.
 
-## 2. Testes automatizados (EditMode)
+## 2. O que foi executado nesta entrega
 
-Executar:
+| Verificação | Onde | Resultado |
+|---|---|---|
+| Compilação do runtime (player e editor), do editor e dos testes | `tools/compile-check/run.sh` (referências Unity 2021.3 + stubs) | sem erros |
+| 32 testes de lógica pura (NUnit, .NET 8) | `tools/compile-check/run.sh` | 32/32 passaram |
+| Compilação na Unity 6000.3.28f1 | — | **não executada** |
+| Testes EditMode completos e PlayMode na Unity | — | **não executados** |
+| Build Linux, rede real, desempenho | — | **não executados** |
+
+## 3. Testes automatizados
 
 ```bash
-./scripts/run-tests.sh
+./scripts/run-tests.sh            # EditMode, na Unity
+```
+```bash
+./scripts/run-tests.sh playmode   # PlayMode, na Unity; precisa de GPU/servidor gráfico
+```
+```bash
+tools/compile-check/run.sh        # sem Unity: compilação + lógica pura
 ```
 
+### EditMode
+
+| Suíte | Cobre | Roda fora da Unity |
+|---|---|---|
+| `SessionCodecTests` | normalização, validação e hash da chave | sim |
+| `LayerDistributorTests` | 1–4 jogadores, cobertura das 4 camadas, sem duplicação | sim |
+| `SwitchboardRulesTests` | extensões válidas, 214↔0, mesma extensão, linha 9 | sim |
+| `CampaignRulesTests` | liberação de capítulos, próximo capítulo, requisitos dos finais, equipamento (máx. 2), dificuldade, seed | sim |
+| `NetworkProtocolTests` | convite (ida e volta, IPv6, versão, porta, chave), chave aleatória, beacon LAN, aprovação | sim |
+| `LineBusyRulesTests` | duração 15–25 s, limiar, frequência de retorno, giro | sim |
+| `NotebookModelTests` | registrar, deduplicar, rejeitar id vazio, anotações | não (usa `Time`) |
+| `TensionSelectorTests` | faixa de tensão, etapa, sem repetição, cooldown | não (usa `ScriptableObject`) |
+
+### PlayMode
+
 | Suíte | Cobre |
 |---|---|
-| `SessionCodecTests` | normalização da chave, validação de tamanho, hash determinístico |
-| `LayerDistributorTests` | distribuição para 1–4 jogadores, cobertura das 4 camadas, sem duplicação indevida |
-| `NotebookModelTests` | registrar, deduplicar, rejeitar id vazio, anotações locais |
-| `TensionSelectorTests` | faixa de tensão, etapa da missão, sem repetição, cooldown por evento |
-| `SwitchboardRulesTests` | extensões válidas, solução 214↔0, rejeição de mesma extensão, linha 9 contaminada |
+| `SoloMissionPlayModeTests` | prólogo completo: telefone, camadas, cabo, 214→9 com Linha Ocupada, 214→0, segunda chamada, corredor, Assinante, isolamento, save. Salva capturas em `$TMPDIR/extensao-zero-shots` |
 
-PlayMode (`./scripts/run-tests.sh playmode`, precisa de GPU/servidor gráfico):
+Ainda não existem testes automatizados para os capítulos 1–5; eles são cobertos pelo roteiro manual da §4.
 
-| Suíte | Cobre |
-|---|---|
-| `SoloMissionPlayModeTests` | fluxo da primeira missão no modo individual; salva capturas em `$TMPDIR/extensao-zero-shots` |
+## 4. Testes manuais (na Unity ou no build)
 
-Ainda **não existem** testes automatizados para: fluxo de etapas da missão isolado, persistência do caderno, aplicação de “reduzir intensidade” e desconexão da central.
+### 4.1 Inicialização e menus
+- [ ] Bootstrap → menu sem exceções; "Continuar campanha" abre o briefing do próximo capítulo.
+- [ ] Capítulos bloqueados mostram "[BLOQUEADO]"; concluídos mostram "(concluído)".
+- [ ] Equipamento: no máximo 2; a escolha persiste entre sessões.
+- [ ] Dificuldade alterna Investigação, Operação e Ruptura.
+- [ ] F3 mostra FPS, memória e setor.
 
-Critérios: todos verdes, sem exceções, sem warnings de compilação.
+### 4.2 Prólogo
+- [ ] Spawn na recepção; o telefone da central toca; rádio de apoio repete o briefing.
+- [ ] Q alterna as 4 camadas; o DTMF toca 2-1-4 completo.
+- [ ] Cabo no arquivo; G solta e o cabo pode ser recolhido de novo; com o cabo plugado, G desconecta.
+- [ ] 214→9: contaminação, Linha Ocupada com frequência de retorno no HUD; girar com Q até o número e segurar libera; a extensão 201 fica vermelha e "Restaurar" também libera.
+- [ ] Alavanca antes da hora volta à posição (sem travar a missão).
+- [ ] 214→0 → segunda chamada → corredor → silhueta some ao ser encarada por ~1,2 s ou ao se aproximar → alavanca conclui.
 
-## 3. Testes de cena (PlayMode/manual)
+### 4.3 Capítulo 1
+- [ ] Três chamadas fantasmas em ordem variada (comparar duas seeds).
+- [ ] Conectar a extensão certa ao tronco 0 → o medidor aponta o setor → o telefone do setor toca.
+- [ ] A extensão contaminada (interferência fala da "nove") fica com LED vermelho.
+- [ ] Isolar o circuito errado aumenta a contaminação; o certo trava a alavanca.
+- [ ] A chamada final descreve a ordem visitada.
 
-### 3.1 Inicialização
+### 4.4 Capítulo 2
+- [ ] Arquivo morto liberado; duas fitas reproduzem como chamadas.
+- [ ] Com o gravador: R numa fita e R na outra mostra a comparação.
+- [ ] Escala de plantão confirma a 212; 207→0 contamina; 212→0 faz a 207 tocar.
+- [ ] Silhueta no arquivo morto; alavanca conclui.
 
-- [ ] Abrir `Bootstrap.unity` e pressionar Play.
-- [ ] Menu aparece com o cenário ao fundo.
-- [ ] “Jogar sozinho” inicia a missão sem erro.
-- [ ] Nenhuma exceção no Console.
+### 4.5 Capítulo 3
+- [ ] Spawn no corredor; porta do subsolo aberta; rampa transitável (sem travar o CharacterController).
+- [ ] A 218 toca ao chegar aos túneis; sinais = números das caixas contaminadas.
+- [ ] LEDs pulsam e zumbem nas contaminadas; o medidor confirma.
+- [ ] Caixa limpa → contaminação e possível Linha Ocupada.
+- [ ] Reflexo no vidro após o 2º isolamento; o 3º leva à chamada final.
 
-### 3.2 Movimento e interação
+### 4.6 Capítulo 4
+- [ ] A previsão se cumpre ao abrir a porta da sala de energia (a luz apaga duas vezes).
+- [ ] Desligar B → Linha Ocupada para quem desligou; religar corrige.
+- [ ] A e C desligados com B ligado → chamada particular.
+- [ ] A Assinante se aproxima pelo túnel só quando ninguém olha; encarar a faz recuar; o contato isola a linha e encerra a aproximação.
 
-- [ ] WASD move; mouse olha; Shift corre.
-- [ ] Colisão com paredes/props funciona.
-- [ ] Prompt de interação aparece a ≤ 2,6 m e some ao se afastar.
-- [ ] E interage; G solta cabo; F liga/desliga lanterna; Q alterna camada; Tab abre caderno; Esc pausa.
-- [ ] Lanterna consome bateria e recarrega na base.
+### 4.7 Capítulo 5 e finais
+- [ ] Porta da central original destrancada; o telefone da operadora toca.
+- [ ] Religar o tronco com circuitos contaminados contamina; depois de isolar os três, registra a restauração limpa.
+- [ ] Ouvir as 4 camadas da gravação original (solo: Q) libera a marca.
+- [ ] Os consoles mostram o requisito quando indisponíveis.
+- [ ] Cada final mostra o epílogo; o save registra o final e a capa do caderno muda.
 
-### 3.3 Primeira ligação
+### 4.8 Interface e acessibilidade
+- [ ] Legendas legíveis em 1080p; a escala funciona.
+- [ ] "Legendas" desligado esconde eventos, não as camadas placeholder.
+- [ ] Reduzir flashes (luzes, LEDs) e reduzir sustos (volume, versões atenuadas).
+- [ ] Inverter eixo Y, FOV, sensibilidade e tela cheia aplicam na hora.
+- [ ] Qualidade Baixa/Média/Alta muda a escala de renderização e as luzes.
+- [ ] Caderno com rolagem e categorias; mapa (M) só com setores visitados.
 
-- [ ] Telefone toca ao iniciar.
-- [ ] Atender reproduz áudio e legendas.
-- [ ] Q alterna as quatro camadas no modo solo.
-- [ ] Cada camada tem legenda e conteúdo distinto.
-- [ ] Caderno registra extensão 214, tronco 0, DTMF 2-1-4 e aviso da linha 9.
-- [ ] Desligar encerra a chamada.
+### 4.9 Salvamento
+- [ ] Save v1 (da fatia) migra: a missão concluída vira o prólogo concluído.
+- [ ] Progresso, finais e marcas persistem; JSON válido em `~/.config/unity3d/.../extensao-zero-save.json`.
 
-### 3.4 Puzzle da central
-
-- [ ] Cabo pode ser pego no arquivo.
-- [ ] Cabo aparece na mão/HUD.
-- [ ] Conectar 214 ao tronco 0 avança a missão.
-- [ ] Conectar 214 à linha 9 gera contaminação, evento de ameaça e Linha Ocupada.
-- [ ] É possível desconectar e corrigir.
-- [ ] Cabo visual acompanha os soquetes sem física instável.
-- [ ] Alavanca de isolamento conclui a missão após a manifestação.
-
-### 3.5 Diretor de Tensão
-
-- [ ] Eventos de Presença ocorrem em intervalos ≥ 12 s.
-- [ ] Eventos de Contradição exigem etapa/tensão compatíveis.
-- [ ] Nenhum evento se repete duas vezes seguidas.
-- [ ] “Reduzir flashes” diminui flicker.
-- [ ] “Reduzir intensidade” reduz volume/duração de sustos.
-- [ ] Silêncio após evento importante.
-
-### 3.6 Assinante
-
-- [ ] Silhueta aparece no corredor após a segunda chamada.
-- [ ] Desaparece ao ser olhada por ~1,2 s.
-- [ ] Não mata, não persegue, não bloqueia a missão.
-- [ ] Estado muda de Observando → Interferindo → Manifestando → Recuando.
-
-### 3.7 Interface e acessibilidade
-
-- [ ] HUD discreta, sem sobreposição.
-- [ ] Legendas legíveis em 1080p.
-- [ ] Caderno abre/fecha e rola.
-- [ ] Configurações salvam entre sessões.
-- [ ] Sensibilidade, FOV e volumes aplicam imediatamente.
-- [ ] Menu de pausa retoma e abandona.
-- [ ] Conclusão mostra tempo, contaminação e evidências.
-
-### 3.8 Salvamento
-
-- [ ] Progresso/evidências persistem após reiniciar.
-- [ ] Nenhum dado é enviado para a rede.
-- [ ] Arquivo JSON válido em `~/.config/unity3d/.../extensao-zero-save.json`.
-
-## 4. Testes de rede
+## 5. Testes de rede
 
 Requer dois processos ou duas máquinas.
 
-### 4.1 Host + 1 cliente na mesma máquina
+### 5.1 Host + 1 cliente na mesma máquina
+- [ ] O host vê IPs locais, porta, chave e convite; "Copiar convite" funciona.
+- [ ] O cliente cola o convite e entra; o lobby mostra 2 jogadores e as camadas de cada um.
+- [ ] O host escolhe capítulo e dificuldade e inicia; ambos entram no mesmo mundo (mesma seed).
+- [ ] Os corpos remotos são visíveis; o movimento sincroniza.
+- [ ] Atender um telefone: cada jogador recebe 2 camadas; Q alterna só as suas.
+- [ ] Portas, cabo, central, fitas, caixas e disjuntores aparecem iguais nos dois.
+- [ ] A Linha Ocupada atinge quem errou; o outro vê a extensão vermelha e pode restaurar.
+- [ ] Cliente sai: o host continua e as camadas são redistribuídas. Host sai: o cliente vê "sessão encerrada".
 
-```bash
-# terminal 1
-./ExtensaoZero.x86_64 -screen-width 1280 -screen-height 720
-
-# terminal 2 (outra cópia do build ou editor)
-./ExtensaoZero.x86_64 -screen-width 1280 -screen-height 720
-```
-
-- [ ] Host cria partida; vê IP local, porta e chave.
-- [ ] Cliente informa IP, porta e chave e entra.
-- [ ] Lobby mostra 2 jogadores.
-- [ ] Host inicia; ambos veem o mundo.
-- [ ] Movimento remoto sincroniza.
-- [ ] Host atende a ligação; cada jogador recebe 2 camadas.
-- [ ] Q alterna apenas as camadas atribuídas.
-- [ ] Interação com cabo/central é validada pelo host.
-- [ ] Contaminação e etapa sincronizam.
-- [ ] Cliente sai; host continua; mensagem clara.
-- [ ] Host sai; sessão encerra organizadamente.
-
-### 4.2 LAN
-
-- [ ] Descoberta automática lista a sessão em até 10 s.
-- [ ] Conexão manual por IP local funciona.
-- [ ] Firewall liberado.
+### 5.2 LAN
+- [ ] "Procurar na rede local" lista a sessão em até 10 s.
+- [ ] Conexão manual por IP local; firewall liberado (UDP 7777 e 47777).
 - [ ] Três e quatro jogadores.
 
-### 4.3 Segurança/erros
+### 5.3 Segurança e erros
+- [ ] Chave errada, sessão cheia, missão iniciada e versão incompatível são rejeitadas com motivo.
+- [ ] Timeout mostra diagnóstico.
+- [ ] Interação a mais de ~3,2 m é ignorada pelo host (log `[EZ] Interação ignorada`).
 
-- [ ] Chave errada é rejeitada com mensagem.
-- [ ] Sessão cheia é rejeitada.
-- [ ] Entrada após início é rejeitada.
-- [ ] Versão incompatível é rejeitada.
-- [ ] Timeout exibe diagnóstico.
-- [ ] Interações fora de distância são ignoradas pelo host.
-- [ ] Spam de interação é limitado.
+### 5.4 Internet
+- [ ] IPv4 público + encaminhamento de porta.
+- [ ] Documentar CGNAT/NAT restritivo; não prometer conexão. IPv6 no host: não suportado.
 
-### 4.4 Internet
-
-- [ ] IPv4 público + port forwarding.
-- [ ] IPv6 global.
-- [ ] Documentar CGNAT/NAT restritivo; não prometer conexão.
-
-## 5. Testes de desempenho
+## 6. Testes de desempenho
 
 - [ ] Build Linux inicia em < 15 s em SSD.
-- [ ] 60 FPS em GPU de referência (Médio, 1080p).
-- [ ] 30 FPS mínimos em 4 GB (Baixo, 1080p).
-- [ ] VRAM ≤ 3,2 GB (Médio); ≤ 1,2 GB na fatia.
-- [ ] Sem vazamento em 10 min.
-- [ ] Draw calls < 350, triângulos < 250 mil.
-- [ ] Log sem erros críticos.
+- [ ] 60 FPS em GPU de referência (Média, 1080p); 30 FPS mínimos em 4 GB (Baixa, 1080p).
+- [ ] VRAM ≤ 3,2 GB (Média).
+- [ ] Sem vazamento em 10 min; draw calls < 350; triângulos < 250 mil.
+- [ ] No máximo 8 luzes ativas por setor (culling por setor).
 
 Registrar hardware, driver, versão do Vulkan e resultados reais.
 
-## 6. Regressão
+## 7. Regressão
 
-- [ ] Compilar sem erros/warnings.
-- [ ] Rodar todos os testes EditMode.
-- [ ] Abrir a cena e jogar o fluxo completo.
-- [ ] Verificar README/documentação atualizados.
-- [ ] Commit organizado.
-
-## 7. O que NÃO foi executado nesta entrega
-
-- Build Linux nativo (a ser executado pelo script; ver relatório).
-- Teste com duas máquinas reais.
-- Medição de FPS/VRAM em GPU real.
-- Teste de áudio em dispositivo físico.
-- Sessão completa de 4 jogadores.
-
-Esses itens permanecem pendentes e não são declarados como aprovados.
+- [ ] `tools/compile-check/run.sh` verde.
+- [ ] Compilar na Unity sem erros ou warnings; EditMode + PlayMode verdes.
+- [ ] Jogar o prólogo inteiro.
+- [ ] README e documentação atualizados.

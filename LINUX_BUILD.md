@@ -88,11 +88,12 @@ Compactar com `tar -czf` ou gerar AppImage (ferramenta externa opcional). Não i
 
 ## 7. Porta e firewall
 
-O multiplayer usa UDP. Porta padrão: **7777** (configurável no lobby).
+O multiplayer usa UDP. Porta padrão do jogo: **7777** (configurável). A descoberta LAN usa **UDP 47777** (broadcast).
 
 - Liberar no firewall local:
   ```bash
   sudo ufw allow 7777/udp
+  sudo ufw allow 47777/udp
   ```
 - Roteador: encaminhar UDP 7777 para o IP local do host.
 - IPv6: liberar a porta no firewall; não há NAT.
@@ -117,4 +118,5 @@ O multiplayer usa UDP. Porta padrão: **7777** (configurável no lobby).
 - Versões dos pacotes fixadas em `Packages/manifest.json` e `Packages/packages-lock.json`.
 - Setup automático no primeiro import.
 - Scripts de build e teste na pasta `scripts/`.
+- Verificação sem Unity (compilação + testes de lógica): `tools/compile-check/run.sh`.
 - Nenhum segredo no repositório.

@@ -95,7 +95,15 @@ O cabo é uma animação controlada por pontos (LineRenderer com curva de Bézie
 | Medidor de circuito | Mostra linha energizada/interrompida/contaminada | Requer contato com a central |
 | Mapa de extensões | Setores e conexões conhecidas | Só mostra o que foi descoberto |
 
-Não há classes fixas. O jogador escolhe até dois equipamentos antes da missão; a lanterna é sempre equipada.
+Não há classes fixas. Lanterna e sintonizador formam o kit base (o sintonizador é indispensável para as camadas). O jogador escolhe até dois equipamentos opcionais (receptor, gravador, medidor, mapa) no briefing ou no lobby. Nenhum puzzle exige um opcional: cada um encurta o caminho, mas há sempre outra fonte de informação (ADR-017).
+
+| Tecla | Uso |
+|---|---|
+| Q | sintonizador: alterna entre as camadas atribuídas; na Linha Ocupada, gira a frequência |
+| R | gravador: grava a camada atual; sem chamada, reproduz; outra versão do mesmo grupo gera comparação |
+| M | mapa de extensões (só setores visitados e telefones descobertos) |
+| — | medidor: aparece no prompt ao olhar para soquetes, caixas e disjuntores |
+| — | receptor: indica no HUD direção e intensidade do sinal ativo mais próximo (≤ 16 m) |
 
 ## 7. Investigação e caderno
 
@@ -227,3 +235,47 @@ Desbloqueios narrativos e cosméticos: novas gravações, documentos, equipament
 - Sensibilidade, FOV, inversão de eixo.
 - Alternativa visual para informações auditivas essenciais (espectro de sinais, transcrição).
 - Sem mudanças bruscas de câmera ou perseguições sem aviso.
+
+## 17. Campanha implementada
+
+Todos os capítulos usam a mesma instalação. Portas liberam setores por capítulo; `SetupWorld` prepara o mundo de forma determinística pela seed em todos os peers, e a lógica da missão roda no host.
+
+### Prólogo — A Primeira Ligação
+Igual à §12. Passos 0–7. Falha recuperável: 214→9.
+
+### Capítulo 1 — A Central
+1. A central toca: três extensões fora de serviço registram tráfego.
+2. Para cada extensão fantasma (ordem pela seed): a central toca; a camada de sinais traz os três dígitos; a equipe conecta a extensão ao tronco 0 para rastrear.
+3. O medidor do painel aponta a origem; o telefone físico do setor toca (recepção 205, arquivo 211, corredor 216). Atender registra a origem.
+4. Uma das três (seed) menciona a linha nove na interferência; o LED dela fica vermelho.
+5. Isolar: conectar a extensão contaminada e puxar a alavanca. Isolar o circuito errado aumenta a contaminação.
+6. A última chamada descreve, na ordem certa, os lugares por onde a equipe passou.
+
+### Capítulo 2 — Arquivo de Vozes
+1. O arquivo morto é liberado. Duas fitas: 1979 (207, tronco livre) e 1987 (212, tronco aberto).
+2. Ouvir as duas registra a diferença; o gravador mostra a comparação lado a lado.
+3. A escala de plantão de 1987 confirma a 212 (segunda fonte). Conectar 207→0 contamina: é a versão alterada.
+4. 212→0 faz a 207 tocar no arquivo morto: uma voz jovem chama "mãe".
+5. A Assinante aparece no arquivo morto; isolar na central conclui. A ordem de corte de 1998 mostra que o tronco zero nunca foi cortado.
+
+### Capítulo 3 — A Linha Morta
+1. Descer pela rampa até os túneis de cabos.
+2. A extensão 218 lista as caixas: sinais com os três números, ambiente com dois locais aproximados e interferência com uma caixa falsa.
+3. Isolar as três caixas contaminadas. Pistas: LED pulsando, zumbido, medidor e receptor. Isolar uma caixa limpa derruba a linha de quem errou.
+4. A contaminação cresce com o tempo enquanto houver caixas ativas. No segundo isolamento, a Assinante aparece no vidro do túnel oeste.
+
+### Capítulo 4 — O Outro Lado
+1. A 218 prevê: "alguém vai abrir a porta da sala de energia; a luz vermelha vai apagar duas vezes". Acontece.
+2. A 209 pede para não desligar o disjuntor B; a interferência pede o contrário; o manual na parede confirma a voz (A e C desligados, B ligado).
+3. Desligar B isola quem desligou (Linha Ocupada) e apaga a emergência; religar corrige.
+4. Uma chamada particular cita frases do caderno da equipe (texto, nunca vozes de jogadores).
+5. A Assinante vem pelo túnel e se aproxima quando ninguém olha. Encará-la a faz recuar; o contato só isola a linha.
+
+### Capítulo 5 — Extensão Zero
+1. A central original é destrancada. Lá estão os registros do incêndio, o crachá de Ana, a gravação original em quatro camadas e cinco circuitos antigos (três contaminados, pela seed).
+2. Religar o tronco com circuitos contaminados ativos contamina; com todos isolados, registra a restauração limpa.
+3. O telefone da operadora toca; atender revela a forma completa e arma as três conclusões.
+4. Cada console mostra seu requisito (Story Bible §7). Todos podem ser cumpridos dentro do capítulo, exceto o abandono, que é registrado quando uma Linha Ocupada termina sem que ninguém restaure a linha.
+
+### Progressão
+Concluir um capítulo libera o próximo. Finais vistos liberam capas do caderno. Rejogar um capítulo gera outra seed.

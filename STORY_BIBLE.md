@@ -135,7 +135,17 @@ Um jogador assume a linha para liberar Ana. A central aceita. A equipe sai, mas 
 
 **Requisito:** ter a confiança da equipe (nenhum jogador isolado por abandono) e ter descoberto o nome de Ana.
 
-## 8. Regras de narrativa
+## 8. Implementação dos capítulos
+
+Os roteiros jogáveis de cada capítulo estão em [GAME_DESIGN_DOCUMENT.md §17](GAME_DESIGN_DOCUMENT.md). Pontos de narrativa colocados em jogo:
+
+- **Cap. 1:** a voz descreve a ordem dos passos da equipe; nenhum explica o sobrenatural.
+- **Cap. 2:** Nara reconhece Celina; a voz jovem diz "mãe", mas o nome de Ana só aparece no Cap. 5 (crachá).
+- **Cap. 3:** "vocês cortaram três de mim"; o reflexo no vidro.
+- **Cap. 4:** a previsão que se cumpre; a chamada que lê o caderno (frases anotadas, nunca vozes reais).
+- **Cap. 5:** relatório do incêndio (o laudo de 1979 foi copiado), crachá de Ana, gravação original com Celina e Ana, e os três epílogos curtos em texto (sem cutscene).
+
+## 9. Regras de narrativa
 
 - A história é apresentada por documentos, gravações, objetos, ligações e eventos ambientais.
 - Sem cutscenes longas; no máximo 20–30 s de sequência controlada.

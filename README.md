@@ -1,83 +1,99 @@
 # EXTENSÃO ZERO
 
-Jogo de terror psicológico cooperativo em primeira pessoa para 1 a 4 jogadores.
-Este repositório contém a **primeira fatia vertical jogável** do projeto e a documentação de pré-produção.
+Jogo de terror psicológico cooperativo em primeira pessoa para 1 a 4 jogadores, em Unity 6000.3.28f1 (URP), com build nativo para Linux.
 
-> **Estado:** fatia vertical implementada em Unity 6000.3.28f1 (URP), com modo individual completo para a primeira missão, base de multiplayer direto para 2 jogadores, Diretor de Tensão, primeira manifestação da Assinante e puzzle da central telefônica.
-> O jogo completo (5 capítulos) **não** está implementado nesta entrega. O escopo e as limitações estão descritos em [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md) e no relatório final.
+> **Estado:** campanha completa implementada em código: prólogo, capítulos 1 a 5 e três finais. Inclui modo individual, multiplayer direto para até 4 jogadores, Diretor de Tensão, a Assinante, equipamentos, dificuldade, variação por seed e progressão local.
+>
+> **Validação:** o código **ainda não foi aberto na Unity 6** depois desta expansão. Ele foi compilado contra assemblies de referência da Unity 2021.3 e stubs dos pacotes (veja [Verificação sem Unity](#verificação-sem-unity)). Os 32 testes de lógica pura foram executados com NUnit e passaram. Faltam o teste PlayMode, o build Linux, partidas reais em rede e a medição de desempenho, que precisam ser feitos na sua máquina. Veja [TEST_PLAN.md](TEST_PLAN.md).
 
 ---
 
-## O que já funciona
+## O que o jogo tem
 
-- Personagem em primeira pessoa: caminhar, olhar, correr, lanterna com bateria, interação por raycast.
-- Sala da central telefônica, corredor, arquivo de vozes e recepção construídos em tempo de execução com geometria modular estilizada.
-- Telefone funcional com quatro camadas de áudio: Voz, Ambiente, Sinais e Interferência.
-- Sintonizador de Frequência (modo individual) para alternar camadas.
-- Primeira ligação fragmentada completa, com pistas que se complementam.
-- Puzzle físico da central: encontrar o cabo, conectar a extensão 214 ao tronco 0, isolar a linha.
-- Caderno de investigação que registra evidências sem entregar a solução.
-- Diretor de Tensão com eventos de Presença, Contradição e Ameaça, cooldowns e variaedade.
-- Assinante com máquina de estados e primeira manifestação física no corredor.
-- Estado "Linha Ocupada" curto e recuperável ao conectar a linha errada.
-- Multiplayer peer-hosted: host, cliente, conexão direta por IP/porta, descoberta LAN por broadcast UDP, chave de sessão e distribuição das camadas da ligação.
-- Interface completa da fatia: menu, lobby, HUD, caderno, pausa, configurações, conclusão de missão.
-- Salvamento local de progresso, evidências e configurações (JSON, sem nuvem).
+- **Campanha** em uma única instalação dividida em setores (ADR-010):
+
+  | Capítulo | Setores | Mecânica nova |
+  |---|---|---|
+  | Prólogo — A Primeira Ligação | recepção, central, arquivo de vozes, corredor | camadas, central, cabo, Linha Ocupada |
+  | 1 — A Central | os mesmos | rastreio de extensões fantasmas pelo tronco 0, isolamento de circuito |
+  | 2 — Arquivo de Vozes | + arquivo morto | fitas de 1979 e 1987, comparação com o gravador |
+  | 3 — A Linha Morta | + rampa e túneis de cabos | seis caixas de passagem, medidor, contaminação física, reflexo |
+  | 4 — O Outro Lado | + sala de energia | previsões que se cumprem, disjuntores, chamada particular, aproximação da Assinante |
+  | 5 — Extensão Zero | + central original | registros do incêndio, gravação original em 4 camadas, forma completa da Assinante, **três finais** |
+
+- **Ligações fragmentadas:** Voz, Ambiente, Sinais e Interferência, distribuídas entre 1 e 4 jogadores. Legendas por camada. Aceita gravações reais por camada (`AudioClip`).
+- **Central telefônica:** 20 extensões, tronco 0 e linha 9. Cabo físico (solta com G), restauração de extensões comprometidas e alavanca de isolamento.
+- **Equipamentos:** lanterna e sintonizador sempre presentes, mais até dois opcionais: receptor portátil, gravador analógico, medidor de circuito ou mapa de extensões.
+- **Diretor de Tensão:** 13 eventos (presença, contradição e ameaça), cooldowns, silêncio de 8–20 s após ameaças e versões atenuadas para acessibilidade. Inclui eventos divergentes entre jogadores, como "três batidas para um, quatro para outro".
+- **A Assinante:** estados ligados à contaminação e quatro tipos de manifestação: silhueta, reflexo, aproximação e forma completa. Ela nunca mata; no pior caso, isola a linha de um jogador.
+- **Linha Ocupada:** dura de 15 a 25 s. Sai-se dela sintonizando a frequência de retorno (Q) ou quando a equipe restaura a extensão na central.
+- **Dificuldade:** Investigação, Operação e Ruptura. A **seed** do host varia a ordem das chamadas, a posição do cabo e quais circuitos estão contaminados.
+- **Multiplayer direto:** host e cliente com NGO + Unity Transport. Conexão por IP/porta ou convite colável `EZ1:`, chave aleatória, descoberta LAN e aprovação por versão, chave, vagas e estado da missão. Interações validadas pelo host.
+- **Interface completa:** menu, briefing com capítulos, equipamento e dificuldade, lobby, HUD, caderno por categoria, mapa, pausa, configurações, tela final com relatório e F3 com estatísticas.
+- **Salvamento local** em JSON: progresso, evidências, marcas de campanha, finais vistos e capas do caderno. Sem nuvem e sem conta.
 
 ## Requisitos
 
 - Linux x86_64.
 - Unity **6000.3.28f1** com Linux Build Support (Mono).
-- GPU com 4 GB de VRAM ou mais para o alvo mínimo; a fatia usa orçamento bem menor.
-- Nenhum serviço externo, conta ou servidor é necessário para jogar.
+- GPU com 4 GB de VRAM é o alvo mínimo, ainda não medido (veja [PERFORMANCE_TARGETS.md](PERFORMANCE_TARGETS.md)).
+- Nenhum serviço externo, conta ou servidor.
 
 ## Como abrir
 
 ```bash
-# na raiz do repositório
 ~/Unity/Hub/Editor/6000.3.28f1/Editor/Unity -projectPath "$(pwd)"
 ```
 
-O primeiro import executa o setup automático (`Assets/_Project/Editor/ProjectSetup.cs`), que cria a cena `Bootstrap`, os assets URP, o perfil de pós-processamento e o prefab de rede.
-
-Também é possível abrir pelo Unity Hub e selecionar a versão 6000.3.28f1.
+Se a cena `Bootstrap`, os assets URP ou os prefabs de rede estiverem faltando, rode **Extensao Zero → Setup Project**.
 
 ## Como jogar no editor
 
-1. Abra `Assets/_Project/Scenes/Bootstrap.unity`.
-2. Pressione **Play**.
-3. No menu, escolha **Jogar sozinho**.
+1. Abra `Assets/_Project/Scenes/Bootstrap.unity` e pressione **Play**.
+2. **Continuar campanha** ou **Capítulos** abre o briefing, onde você escolhe capítulo, equipamento e dificuldade.
+3. Para jogar em grupo, use **Criar sessão** ou **Entrar em sessão**.
 
 ## Controles
 
 | Ação | Tecla |
 |---|---|
-| Mover | W A S D |
-| Olhar | Mouse |
-| Correr | Shift |
-| Interagir / atender / conectar | E |
-| Alternar camada da ligação | Q |
+| Mover / olhar / correr | W A S D / mouse / Shift |
+| Interagir, atender, conectar | E |
+| Sintonizador: alternar camada ou girar a frequência na Linha Ocupada | Q |
 | Lanterna | F |
+| Soltar o cabo (ou desconectar, se estiver plugado) | G |
+| Gravador: gravar a camada atual ou reproduzir | R |
+| Mapa de extensões | M |
 | Caderno | Tab |
 | Pausa | Esc |
-| Soltar cabo | G |
+| Estatísticas de desempenho | F3 |
 
-## Como gerar o build Linux
+## Build Linux
 
 ```bash
 ./scripts/build-linux.sh
 ```
 
-O build sai em `Builds/Linux/ExtensaoZero.x86_64` (use `--dev` para um build de desenvolvimento com profiler). Instruções detalhadas em [LINUX_BUILD.md](LINUX_BUILD.md).
+Para um build de desenvolvimento com profiler, use `--dev`. A saída vai para `Builds/Linux/`. Detalhes em [LINUX_BUILD.md](LINUX_BUILD.md).
 
 ## Testes
 
+Na Unity:
+
 ```bash
-./scripts/run-tests.sh            # EditMode (padrão)
-./scripts/run-tests.sh playmode   # fluxo da missão solo; precisa de GPU/servidor gráfico
+./scripts/run-tests.sh            # EditMode
+```
+```bash
+./scripts/run-tests.sh playmode   # fluxo do prólogo; precisa de GPU/servidor gráfico
 ```
 
-Os testes EditMode cobrem distribuição de camadas, chave de sessão, caderno, regras da central e seleção de eventos do Diretor de Tensão. O teste PlayMode percorre a primeira missão no modo individual. Resultados em `Logs/test-results-*.xml`. Veja [TEST_PLAN.md](TEST_PLAN.md).
+### Verificação sem Unity
+
+```bash
+tools/compile-check/run.sh
+```
+
+Compila o runtime, o editor e os testes contra referências da Unity 2021.3 (NuGet) e stubs dos pacotes, depois executa os testes de lógica pura com NUnit. Precisa de `dotnet` 8, `curl` e `unzip`. Ela pega erros de C# e de API comum, mas **não** substitui a Unity: APIs exclusivas do Unity 6 e o code-gen do Netcode só são validados no editor.
 
 ## Estrutura
 
@@ -85,42 +101,34 @@ Os testes EditMode cobrem distribuição de camadas, chave de sessão, caderno, 
 Assets/_Project/
   Editor/            setup do projeto, build
   Scripts/
-    Core/            bootstrap, estado de jogo, configurações, salvamento
-    Player/          controlador FPS, equipamentos, lanterna
-    Interaction/     interface de interação, portas, objetos examináveis
-    Telephone/       ligações, camadas, telefone, central, cabos, sintonizador
-    Investigation/   caderno, evidências, pistas
-    Anomaly/         Diretor de Tensão, contaminação, eventos
-    AI/              Assinante (máquina de estados)
-    Multiplayer/     rede direta, descoberta LAN, sessão, sync
-    Missions/        primeira missão e objetivos
-    Audio/           áudio procedural, mixagem, oclusão, filtros
-    UI/              HUD, menu, lobby, caderno, configurações
-  Scenes/            Bootstrap (cena única da fatia)
-  Settings/          URP, volume, qualidade
-  Tests/EditMode/    testes automatizados de lógica
-  Tests/PlayMode/    teste de fumaça da missão solo
-scripts/             build Linux e execução de testes em batch mode
+    Core/            bootstrap, GameManager, configurações, salvamento
+    Campaign/        capítulos, dificuldade, equipamentos, finais, seed (lógica pura)
+    Missions/        MissionBase + prólogo e capítulos 1–5
+    Player/          controlador FPS, equipamentos, sintonizador, gravador, lanterna
+    Interaction/     portas, documentos, fitas, caixas, disjuntores, consoles, zonas
+    Telephone/       chamadas, sessão de chamada, telefone, central, cabo
+    Investigation/   caderno e catálogo de evidências
+    Anomaly/         Diretor de Tensão, eventos, contaminação, Linha Ocupada
+    AI/              Assinante
+    Multiplayer/     bootstrap de rede, jogador, estado, convite, beacon LAN, aprovação
+    Environment/     construção do mundo, setores, comandos de mundo, iluminação
+    Audio/           áudio procedural, diretor de áudio, oclusão
+    UI/              interface completa
+  Tests/EditMode/    testes de lógica
+  Tests/PlayMode/    teste de fumaça do prólogo
+scripts/             build Linux e testes na Unity
+tools/compile-check/ verificação sem Unity (compilação + testes de lógica)
 ```
 
 ## Documentação
 
-- [GAME_DESIGN_DOCUMENT.md](GAME_DESIGN_DOCUMENT.md)
-- [STORY_BIBLE.md](STORY_BIBLE.md)
-- [ART_DIRECTION.md](ART_DIRECTION.md)
-- [AUDIO_DIRECTION.md](AUDIO_DIRECTION.md)
-- [TECHNICAL_ARCHITECTURE.md](TECHNICAL_ARCHITECTURE.md)
-- [NETWORK_ARCHITECTURE.md](NETWORK_ARCHITECTURE.md)
-- [PERFORMANCE_TARGETS.md](PERFORMANCE_TARGETS.md)
-- [LINUX_BUILD.md](LINUX_BUILD.md)
-- [TEST_PLAN.md](TEST_PLAN.md)
-- [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md)
-- [DECISIONS.md](DECISIONS.md)
+[GAME_DESIGN_DOCUMENT.md](GAME_DESIGN_DOCUMENT.md) · [STORY_BIBLE.md](STORY_BIBLE.md) · [ART_DIRECTION.md](ART_DIRECTION.md) · [AUDIO_DIRECTION.md](AUDIO_DIRECTION.md) · [TECHNICAL_ARCHITECTURE.md](TECHNICAL_ARCHITECTURE.md) · [NETWORK_ARCHITECTURE.md](NETWORK_ARCHITECTURE.md) · [PERFORMANCE_TARGETS.md](PERFORMANCE_TARGETS.md) · [LINUX_BUILD.md](LINUX_BUILD.md) · [TEST_PLAN.md](TEST_PLAN.md) · [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md) · [DECISIONS.md](DECISIONS.md)
 
-## Limitações conhecidas desta entrega
+## Limitações conhecidas
 
-- As vozes são **placeholders procedurais** (sons de voz sintetizados, não inteligíveis). As informações chegam por legendas e pelo caderno. As gravações definitivas precisam ser produzidas e colocadas nos campos `AudioClip` das definições de ligação. Ver [AUDIO_DIRECTION.md](AUDIO_DIRECTION.md).
-- A arte usa geometria modular e texturas geradas em código, coerente com a direção visual, mas ainda não é a arte final.
-- O multiplayer foi implementado e compila, mas os testes de rede real dependem de duas máquinas/processos e não foram executados neste ambiente. Ver relatório e [TEST_PLAN.md](TEST_PLAN.md).
-- Não há migração de host, reconexão automática, UPnP automático nem chat de voz.
-- O consumo de VRAM/FPS não foi medido em GPU real neste ambiente de nuvem. O orçamento é uma meta de projeto; nenhuma compatibilidade de hardware é declarada sem medição.
+- **Sem validação na Unity desta versão:** podem existir erros que só a Unity 6 mostra, como APIs novas ou o code-gen de RPC do Netcode. O primeiro passo é abrir o projeto, rodar os testes e jogar o prólogo.
+- **Vozes placeholder:** a voz é sintetizada e não inteligível. A informação chega por legendas e pelo caderno. As gravações reais entram nos campos `AudioClip` de cada camada (veja [AUDIO_DIRECTION.md](AUDIO_DIRECTION.md)).
+- **Arte procedural:** geometria modular e materiais gerados em código. Ainda não é a arte final.
+- **Multiplayer não testado entre processos reais.** O cliente envia a própria posição e o host valida os limites; não é movimento autoritativo por input (ADR-016). Não há migração de host, reconexão automática, UPnP, IPv6 no host nem chat de voz.
+- **Assinante:** os efeitos são locais. Em grupo, cada jogador pode vê-la em um lugar ligeiramente diferente, o que é intencional, mas ainda não foi validado em playtest.
+- **Desempenho não medido.** Nenhuma compatibilidade de hardware é declarada.

@@ -56,18 +56,31 @@ O ambiente de desenvolvimento não permite gravar vozes humanas. Para não simul
 
 ### Gravações a produzir
 
-| ID | Falante | Linhas | Estado |
-|---|---|---|---|
-| call_000_a | Celina | 6 | a gravar |
-| call_000_b | Ana | 4 | a gravar |
-| call_214_a | Celina | 5 | a gravar |
-| call_214_b | Ana | 3 | a gravar |
-| call_009 | Interferência coral | 4 | a gravar |
-| apoio_helena | Helena | 8 | a gravar |
-| arquivo_teodoro | Teodoro | 6 | a gravar |
-| arquivo_iracema | Iracema | 5 | a gravar |
+Cada chamada tem um id em `CallCatalog` e quatro campos `AudioClip` (`voiceClip`, `ambienceClip`, `signalsClip`, `interferenceClip`). Uma camada com clip toca a gravação; sem clip, toca o placeholder procedural.
 
-Formato de entrega: WAV 48 kHz/24 bits, mono para vozes, sem processamento destrutivo; filtros aplicados em tempo de execução. Cada linha deve ter versão limpa e versão “telefone” para referência.
+| ID | Capítulo | Voz | Estado |
+|---|---|---|---|
+| `first_call`, `second_call` | Prólogo | desconhecida (Ana, sem identificação) | a gravar |
+| `ch1_intro` | 1 | voz de arquivo (RENALTA) | a gravar |
+| `ch1_phantom_205/211/216`, `ch1_source_*`, `ch1_final` | 1 | desconhecida | a gravar (`ch1_source_*` e `ch1_final` variam pela seed: gravar as variantes de interferência e a fala final em partes) |
+| `ch2_tape_1979`, `ch2_tape_1987` | 2 | Celina Prado | a gravar (mesma fala, números diferentes) |
+| `ch2_reply` | 2 | voz jovem (Ana) | a gravar |
+| `ch3_tunnel` (gerada pela seed), `ch3_after` | 3 | desconhecida | a gravar (números e locais em partes) |
+| `ch4_prediction`, `ch4_breakers`, `ch4_personal` | 4 | desconhecida / Ana | a gravar |
+| `ch5_original` | 5 | Celina e Ana Prado | a gravar |
+| `ch5_operator` | 5 | Ana Prado | a gravar |
+| rádio de apoio | todos | Helena Rocha, Nara Prado | a gravar (hoje: legenda) |
+
+Formato de entrega: WAV 48 kHz/24 bits, mono para vozes, sem processamento destrutivo; os filtros são aplicados em tempo de execução. Cada linha deve ter versão limpa e versão "telefone" para referência.
+
+### Implementado nesta versão
+
+- Ambiência por setor (central, recepção, arquivo, corredor, túneis, energia, central original) em loop contínuo.
+- Reverb zone por setor: Room, Hallway, Livingroom, SewerPipe, Hangar e Cave.
+- Fone do jogador com passa-banda 300–3400 Hz.
+- Fontes do mundo com rolloff logarítmico de 1 a 25 m; oclusão em 1,2 kHz.
+- Sustos limitados a no máximo 2× o volume da cena (≈ +6 dB); "reduzir intensidade" corta pela metade.
+- DTMF completo na camada de sinais.
 
 ## 7. Eventos do Diretor de Tensão
 
@@ -77,6 +90,10 @@ Formato de entrega: WAV 48 kHz/24 bits, mono para vozes, sem processamento destr
 | Telefone solitário | um toque curto | A |
 | Passos distantes | passos com reverb, param com o jogador | A/B |
 | Telefone sem linha | campainha + ruído de linha | B |
+| Batidas divergentes | 3 batidas para um jogador, 4 para outro | B |
+| Passos espelhados | passos acompanham os seus e dão um a mais | B |
+| LED sem cabo | relé + LED no painel | A |
+| Chamada particular | um toque só para um jogador | C |
 | Sequência de luzes | relés e cliques | C |
 | Sussurro | interferência com formantes | B |
 | Manifestação | frequência grave + fios | C |

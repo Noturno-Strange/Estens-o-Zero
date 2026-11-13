@@ -53,7 +53,7 @@ VRAM não determina sozinha o desempenho. Nenhuma compatibilidade é declarada s
 | Média | 1,0 | 2, 2048 | 6 | padrão |
 | Alta | 1,0 | 2, 2048 | 8 | completo |
 
-Configurações aplicadas por `GameSettings` e pelo asset URP. A qualidade padrão da fatia é Média.
+Implementado em `GameSettings.ApplyQuality`: seleciona o nível Unity "Low", "Medium" ou "High" e ajusta uma **cópia em runtime** do asset URP (escala de renderização 0,8/1,0/1,0; luzes adicionais 4/6/8; distância de sombra 14/22/26 m). O asset do projeto não é alterado. O pós-processamento é o mesmo nos três níveis. A qualidade padrão é Média.
 
 ## 5. Medição
 
@@ -70,12 +70,18 @@ Ferramentas: Unity Profiler, Frame Debugger, `nvidia-smi`/`radeontop`, RenderDoc
 
 ## 6. Estado atual
 
-Nesta execução:
-
-- O projeto foi importado e compilado no Unity 6000.3.28f1 em modo batch.
-- **Não foi possível medir FPS/VRAM em GPU real** dentro do ambiente de nuvem/CLI. Nenhum número de desempenho é declarado.
-- A cena da fatia é pequena e usa orçamento conservador; a meta de 1,2 GB é estimativa de projeto, não medição.
-- O perfil de qualidade e as opções estão implementados; a validação depende de execução local.
+- A fatia vertical original foi importada e compilada na Unity 6000.3.28f1 em uma sessão anterior.
+- **A campanha completa (esta versão) não foi compilada nem executada na Unity.** Foi compilada contra referências da Unity 2021.3 + stubs (ADR-018).
+- **Nenhum FPS, VRAM ou tempo de carregamento foi medido.** Nenhum número de desempenho é declarado.
+- Medidas de orçamento já no código:
+  - culling de luzes por setor: só o setor atual e os vizinhos ficam acesos, no máximo ~8 por região;
+  - 2 luzes com sombra no mundo (central e sala de energia), além da lanterna local;
+  - static batching de paredes, pisos e tetos (`StaticBatchingUtility.Combine`);
+  - materiais compartilhados e uma textura de ruído de 32 px;
+  - áudio procedural com cache;
+  - UI em canvas único;
+  - eventos e oclusão atualizados por intervalo, não por frame.
+- O overlay F3 mostra FPS, tempo de frame, memória alocada, a GPU e a VRAM declarada pelo driver.
 
 ## 7. Riscos
 
