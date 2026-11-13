@@ -22,13 +22,21 @@ namespace ExtensaoZero.Interaction
         public override void Interact(PlayerInteractor interactor)
         {
             m_Examined = true;
+            var manager = GameManager.Instance;
+            if (manager == null) return;
             if (!string.IsNullOrEmpty(evidenceId))
             {
-                GameManager.Instance.RegisterEvidence(new EvidenceEntry(evidenceId, title, body, category));
+                manager.RegisterEvidence(new EvidenceEntry(evidenceId, title, body, category));
+                manager.RaiseEvent("examine:" + evidenceId);
             }
 
-            GameManager.Instance.UI.ShowSubtitle(title.ToUpperInvariant(), body, UITheme.Paper, 6f);
-            GameManager.Instance.Audio.PlayUiClick();
+            TellActor(interactor, title.ToUpperInvariant(), body, UITheme.Paper, 7f);
+            if (IsLocal(interactor)) manager.Audio?.PlayUiClick();
+        }
+
+        public void ResetExamined()
+        {
+            m_Examined = false;
         }
     }
 }

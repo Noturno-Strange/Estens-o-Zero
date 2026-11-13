@@ -6,8 +6,9 @@ using UnityEngine;
 namespace ExtensaoZero.Anomaly
 {
     /// <summary>
-    /// Contaminação 0–100. Sobe com conexões erradas e erros repetidos; desce com
-    /// isolamento e tempo sem erro. Nunca mata o jogador: cria a Linha Ocupada.
+    /// Contaminação 0–100 (autoridade do host; clientes recebem o valor) e o estado local da
+    /// Linha Ocupada do jogador. Sobe com conexões erradas; desce com isolamento e tempo sem
+    /// erro. Nunca mata o jogador: cria a Linha Ocupada, que é sempre recuperável.
     /// </summary>
     public sealed class ContaminationSystem : MonoBehaviour
     {
@@ -21,9 +22,7 @@ namespace ExtensaoZero.Anomaly
         public float Normalized => Mathf.Clamp01(Value / 100f);
         public bool IsLineBusy { get; private set; }
         public float BusyRemaining => IsLineBusy ? Mathf.Max(0f, m_BusyUntil - Time.time) : 0f;
-
-        private const float BusyThreshold = 55f;
-        private const float BusyDuration = 20f;
+        public int ReturnFrequency { get; private set; }
 
         private GameManager m_Manager;
         private float m_BusyUntil;
@@ -54,17 +53,14 @@ namespace ExtensaoZero.Anomaly
             if (amount <= 0f) return;
             var before = Value;
             Value = Mathf.Clamp(Value + amount, 0f, 100f);
-            Changed?.Invoke(Normalized);
-            m_Manager?.UI?.SetContamination(Normalized);
+            Notify();
 
-            if (!string.IsNullOrEmpty(reason))
-            {
-                Debug.Log($"[EZ] Contaminação +{amount:0}: {reason} ({Value:0}/100)");
-            }
+            if (!string.IsNullOrEmpty(reason)) Debug.Log($"[EZ] Contaminação +{amount:0}: {reason} ({Value:0}/100)");
 
-            if (before < BusyThreshold && Value >= BusyThreshold && !IsLineBusy)
+            // Só o host decide quem entra em Linha Ocupada.
+            if (m_Manager != null && m_Manager.IsHost && LineBusyRules.ShouldTrigger(before, Value, IsLineBusy))
             {
-                BeginLineBusy(BusyDuration);
+                m_Manager.TriggerLineBusy();
             }
         }
 
@@ -72,55 +68,90 @@ namespace ExtensaoZero.Anomaly
         {
             if (amount <= 0f) return;
             Value = Mathf.Clamp(Value - amount, 0f, 100f);
-            Changed?.Invoke(Normalized);
-            m_Manager?.UI?.SetContamination(Normalized);
+            Notify();
         }
 
         public void Set(float value)
         {
             Value = Mathf.Clamp(value, 0f, 100f);
+            Notify();
+        }
+
+        /// <summary>Valor replicado pelo host (clientes).</summary>
+        public void SetFromNetwork(float normalized)
+        {
+            Value = Mathf.Clamp01(normalized) * 100f;
             Changed?.Invoke(Normalized);
             m_Manager?.UI?.SetContamination(Normalized);
         }
 
-        public void BeginLineBusy(float duration = BusyDuration)
+        private void Notify()
+        {
+            Changed?.Invoke(Normalized);
+            m_Manager?.UI?.SetContamination(Normalized);
+        }
+
+        /// <summary>Isola o jogador local: estática, camadas bloqueadas, frequência de retorno.</summary>
+        public void BeginLineBusy(float duration, int returnFrequency)
         {
             if (IsLineBusy) return;
             IsLineBusy = true;
-            m_BusyUntil = Time.time + Mathf.Max(6f, duration);
+            ReturnFrequency = Mathf.Clamp(returnFrequency, 0, LineBusyRules.FrequencySteps - 1);
+            m_BusyUntil = Time.time + LineBusyRules.ClampDuration(duration);
+            var equipment = m_Manager != null && m_Manager.LocalPlayerController != null
+                ? m_Manager.LocalPlayerController.GetComponent<Player.PlayerEquipment>()
+                : null;
+            equipment?.Tuner.ResetFrequency();
+
             LineBusyStarted?.Invoke();
             m_Manager?.Audio?.PlayScare(Audio.ProceduralAudio.Static(), 0.65f);
-            m_Manager?.UI?.ShowSubtitle("LINHA OCUPADA", "Sua linha foi isolada. Explore e sintonize a frequência de retorno.", UITheme.Red, 6f);
+            m_Manager?.UI?.ShowSubtitle("LINHA OCUPADA",
+                $"Sua linha foi isolada. Gire o sintonizador (Q) até a frequência de retorno {ReturnFrequency} ou peça à equipe para restaurar sua extensão na central.",
+                UITheme.Red, 7f);
+            m_Manager?.UI?.SetLineBusy(true, 0, ReturnFrequency, BusyRemaining);
             m_Manager?.Tension?.AddTension(0.12f);
         }
 
-        public void EndLineBusy()
+        public void EndLineBusy(bool notify)
         {
             if (!IsLineBusy) return;
             IsLineBusy = false;
             LineBusyEnded?.Invoke();
-            m_Manager?.UI?.ShowSubtitle("LINHA RESTAURADA", "O sinal voltou. A extensão comprometida foi liberada.", UITheme.Green, 4f);
+            m_Manager?.UI?.SetLineBusy(false, 0, 0, 0f);
+            if (m_Manager != null && !m_Manager.IsMultiplayer) m_Manager.World?.Switchboard?.SetCompromised(m_Manager.ExtensionOfClient(0), false);
+            if (notify)
+            {
+                m_Manager?.UI?.ShowSubtitle("LINHA RESTAURADA", "O sinal voltou. A extensão comprometida foi liberada.", UITheme.Green, 4f);
+            }
         }
 
-        /// <summary>
-        /// Recuperação alternativa: o jogador sintoniza a frequência de retorno exibida.
-        /// </summary>
+        /// <summary>Recuperação pelo próprio jogador: sintonizou a frequência de retorno.</summary>
         public void TryRecoverByFrequency()
         {
             if (!IsLineBusy) return;
-            EndLineBusy();
-            Reduce(12f);
+            EndLineBusy(true);
+            if (m_Manager == null) return;
+            if (m_Manager.IsMultiplayer && !m_Manager.IsHost)
+            {
+                m_Manager.LocalNetworkPlayer?.ReportLineRecovered();
+            }
+            else
+            {
+                var id = m_Manager.LocalNetworkPlayer != null ? m_Manager.LocalNetworkPlayer.OwnerClientId : 0UL;
+                m_Manager.OnLineBusyRecovered(id);
+            }
         }
 
         private void Update()
         {
             if (IsLineBusy && Time.time >= m_BusyUntil)
             {
-                EndLineBusy();
+                // Expirou sem recuperação: termina sozinha (nunca é punição permanente).
+                EndLineBusy(true);
             }
 
-            // Decaimento lento e previsível; não esconde o erro do jogador.
-            if (!IsLineBusy && Value > 0f && Time.time >= m_LastDecay)
+            // Decaimento lento e previsível (host); não esconde o erro do jogador.
+            if (m_Manager != null && m_Manager.IsHost && !IsLineBusy && Value > 0f && Time.time >= m_LastDecay)
             {
                 m_LastDecay = Time.time + 8f;
                 Reduce(0.8f);

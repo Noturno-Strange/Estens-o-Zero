@@ -18,7 +18,12 @@ namespace ExtensaoZero.Anomaly
         LightSequence,
         PhonesRingTogether,
         SubscriberManifestation,
-        RecordingAlteration
+        RecordingAlteration,
+        KnocksDivergent,
+        PhoneDisconnectedRing,
+        StepsMirror,
+        LedDisconnected,
+        PrivateCall
     }
 
     /// <summary>

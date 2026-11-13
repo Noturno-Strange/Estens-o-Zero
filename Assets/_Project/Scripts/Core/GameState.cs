@@ -4,11 +4,13 @@ namespace ExtensaoZero.Core
     {
         Boot,
         MainMenu,
+        Briefing,
         Lobby,
         Playing,
         Paused,
         Notebook,
         MissionComplete,
+        Map,
         Disconnected
     }
 }

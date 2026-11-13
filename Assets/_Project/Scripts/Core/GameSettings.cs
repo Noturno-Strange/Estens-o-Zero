@@ -2,6 +2,8 @@ using System;
 using ExtensaoZero.Audio;
 using ExtensaoZero.UI;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace ExtensaoZero.Core
 {
@@ -39,6 +41,11 @@ namespace ExtensaoZero.Core
         public int targetFrameRate = 60;
 
         private const string Prefix = "EZ_";
+
+        /// <summary>Níveis de qualidade do jogo (PERFORMANCE_TARGETS §4).</summary>
+        public static readonly string[] QualityLabels = { "BAIXA", "MÉDIA", "ALTA" };
+        private static readonly string[] UnityQualityNames = { "Low", "Medium", "High" };
+        private static UniversalRenderPipelineAsset s_RuntimePipeline;
 
         public static GameSettings Create(Transform parent)
         {
@@ -95,7 +102,7 @@ namespace ExtensaoZero.Core
         public void ApplyAll()
         {
             AudioListener.volume = Mathf.Clamp01(masterVolume);
-            QualitySettings.SetQualityLevel(Mathf.Clamp(qualityLevel, 0, QualitySettings.names.Length - 1), true);
+            ApplyQuality();
             Application.targetFrameRate = Mathf.Clamp(targetFrameRate, 30, 240);
 
             if (Screen.width != resolutionWidth || Screen.height != resolutionHeight || Screen.fullScreen != fullscreen)
@@ -118,6 +125,32 @@ namespace ExtensaoZero.Core
             if (ui != null) ui.ApplyAccessibility(this);
 
             Changed?.Invoke();
+        }
+
+        /// <summary>
+        /// Baixa: render scale 0,8, 4 luzes adicionais, sombras curtas. Média: 1,0 / 6. Alta: 1,0 / 8.
+        /// Usa uma cópia em runtime do asset URP para não alterar o asset do projeto.
+        /// </summary>
+        private void ApplyQuality()
+        {
+            qualityLevel = Mathf.Clamp(qualityLevel, 0, QualityLabels.Length - 1);
+            var index = System.Array.IndexOf(QualitySettings.names, UnityQualityNames[qualityLevel]);
+            if (index >= 0) QualitySettings.SetQualityLevel(index, true);
+
+            var source = s_RuntimePipeline != null
+                ? s_RuntimePipeline
+                : (GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset) ?? (GraphicsSettings.defaultRenderPipeline as UniversalRenderPipelineAsset);
+            if (source == null) return;
+            if (s_RuntimePipeline == null)
+            {
+                s_RuntimePipeline = Instantiate(source);
+                s_RuntimePipeline.name = "EZ_URP_Runtime";
+            }
+
+            s_RuntimePipeline.renderScale = qualityLevel == 0 ? 0.8f : 1f;
+            s_RuntimePipeline.maxAdditionalLightsCount = qualityLevel == 0 ? 4 : qualityLevel == 1 ? 6 : 8;
+            s_RuntimePipeline.shadowDistance = qualityLevel == 0 ? 14f : qualityLevel == 1 ? 22f : 26f;
+            QualitySettings.renderPipeline = s_RuntimePipeline;
         }
 
         public void NotifyChanged()

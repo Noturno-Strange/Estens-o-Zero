@@ -3,8 +3,9 @@ using UnityEngine;
 namespace ExtensaoZero.Audio
 {
     /// <summary>
-    /// Atenua fontes distantes atrás de geometria. Raycast periódico (não por frame)
-    /// para manter o custo baixo em 4 GB de VRAM / 60 FPS.
+    /// Oclusão simplificada (AUDIO_DIRECTION §5): raycast do ouvinte até a fonte a cada 0,2 s;
+    /// sem linha de visão, passa-baixa em 1,2 kHz; com linha de visão, 22 kHz. Só mexe no
+    /// filtro — o volume continua sendo de quem toca o som.
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
     public sealed class OcclusionFilter : MonoBehaviour
@@ -12,7 +13,7 @@ namespace ExtensaoZero.Audio
         public Transform listener;
         public LayerMask occlusionMask = ~0;
         public float updateInterval = 0.2f;
-        [Range(0.05f, 1f)] public float occludedCutoff = 0.22f;
+        public float occludedCutoff = 1200f;
 
         private AudioSource m_Source;
         private AudioLowPassFilter m_Filter;
@@ -41,9 +42,9 @@ namespace ExtensaoZero.Audio
             var origin = listener.position;
             var target = transform.position;
             var blocked = Physics.Linecast(origin, target, out var hit, occlusionMask, QueryTriggerInteraction.Ignore);
-            var cutoff = blocked && hit.transform != transform ? 900f * Mathf.Clamp(occludedCutoff, 0.05f, 1f) : 22000f;
+            var occluded = blocked && hit.transform != transform && !hit.transform.IsChildOf(transform);
+            var cutoff = occluded ? occludedCutoff : 22000f;
             if (m_Filter != null) m_Filter.cutoffFrequency = Mathf.Lerp(m_Filter.cutoffFrequency, cutoff, 0.4f);
-            if (m_Source != null) m_Source.volume = blocked ? 0.55f : 1f;
         }
     }
 }

@@ -1,3 +1,4 @@
+using ExtensaoZero.Interaction;
 using UnityEngine;
 
 namespace ExtensaoZero.Telephone
@@ -38,8 +39,7 @@ namespace ExtensaoZero.Telephone
             for (var i = 0; i < segments; i++)
             {
                 var t = i / (float)(segments - 1);
-                var point = Bezier(start, control, end, t);
-                line.SetPosition(i, point);
+                line.SetPosition(i, Bezier(start, control, end, t));
             }
         }
 
@@ -51,17 +51,20 @@ namespace ExtensaoZero.Telephone
     }
 
     /// <summary>
-    /// Item carregável. Não é um MonoBehaviour: pertence ao equipamento do jogador.
+    /// Item carregável. Não é um MonoBehaviour: pertence ao equipamento do jogador e lembra
+    /// de onde veio, para voltar ao mundo quando for solto (G).
     /// </summary>
     public sealed class CableItem
     {
         public string Label { get; }
         public int Length { get; }
+        public CablePickup Source { get; }
 
-        public CableItem(string label, int length = 1)
+        public CableItem(string label, int length = 1, CablePickup source = null)
         {
             Label = string.IsNullOrEmpty(label) ? "CABO" : label;
             Length = Mathf.Max(1, length);
+            Source = source;
         }
 
         public override string ToString() => $"{Label} ({Length} m)";

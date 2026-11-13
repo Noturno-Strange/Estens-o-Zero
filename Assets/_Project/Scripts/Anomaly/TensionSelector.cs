@@ -15,6 +15,14 @@ namespace ExtensaoZero.Anomaly
 
         public IReadOnlyDictionary<string, float> LastFired => m_LastFired;
 
+        /// <summary>Multiplicador de peso dos eventos de ameaça (dificuldade).</summary>
+        public float ThreatWeightMultiplier { get; set; } = 1f;
+
+        private float WeightOf(TensionEventDefinition e)
+        {
+            return e.category == TensionCategory.Threat ? e.weight * ThreatWeightMultiplier : e.weight;
+        }
+
         public TensionEventDefinition Select(
             IReadOnlyList<TensionEventDefinition> events,
             float tension,
@@ -36,16 +44,17 @@ namespace ExtensaoZero.Anomaly
                 if (tension < e.minTension || tension > e.maxTension) continue;
                 if (missionStep < e.minMissionStep) continue;
                 if (m_LastFired.TryGetValue(e.id, out var last) && now - last < e.cooldown) continue;
-                if (e.weight <= 0f) continue;
+                var weight = WeightOf(e);
+                if (weight <= 0f) continue;
                 m_Eligible.Add(e);
-                totalWeight += e.weight;
+                totalWeight += weight;
             }
 
             if (m_Eligible.Count == 0) return null;
             var roll = (float)random.NextDouble() * totalWeight;
             for (var i = 0; i < m_Eligible.Count; i++)
             {
-                roll -= m_Eligible[i].weight;
+                roll -= WeightOf(m_Eligible[i]);
                 if (roll <= 0f) return m_Eligible[i];
             }
 

@@ -57,6 +57,11 @@ namespace ExtensaoZero.Audio
         {
             m_Ambient = CreateSource("Ambient", true, 0f);
             m_Call = CreateSource("Call", false, 0f);
+            // Filtro telefônico (passa-banda 300–3400 Hz aproximado) no fone do jogador.
+            var low = m_Call.gameObject.AddComponent<AudioLowPassFilter>();
+            low.cutoffFrequency = 3400f;
+            var high = m_Call.gameObject.AddComponent<AudioHighPassFilter>();
+            high.cutoffFrequency = 300f;
             m_Scare = CreateSource("Scare", false, 0f);
             m_Ui = CreateSource("UI", false, 0f);
         }
@@ -93,8 +98,9 @@ namespace ExtensaoZero.Audio
 
         public void PlayAmbient(string zone)
         {
+            if (m_Ambient == null || string.IsNullOrEmpty(zone)) return;
+            if (zone == m_AmbientZone && m_Ambient.isPlaying) return;
             m_AmbientZone = zone;
-            if (m_Ambient == null) return;
             m_Ambient.clip = ProceduralAudio.Ambience(zone);
             m_Ambient.volume = AmbienceVolume;
             m_Ambient.Play();
@@ -103,6 +109,7 @@ namespace ExtensaoZero.Audio
         public void StopAmbient()
         {
             if (m_Ambient != null) m_Ambient.Stop();
+            m_AmbientZone = null;
         }
 
         public void PlayUiClick()
@@ -119,25 +126,48 @@ namespace ExtensaoZero.Audio
             var source = go.AddComponent<AudioSource>();
             source.clip = clip;
             source.spatialBlend = 1f;
-            source.rolloffMode = AudioRolloffMode.Linear;
+            source.rolloffMode = AudioRolloffMode.Logarithmic;
             source.minDistance = 1f;
-            source.maxDistance = 24f;
+            source.maxDistance = 25f;
             source.volume = Mathf.Clamp01(volume) * CategoryVolume(category);
             source.Play();
             Destroy(go, clip.length + 0.1f);
         }
 
-        public void PlayCallLayer(CallLayer layer, AudioClip clip, float volume = 1f)
+        /// <summary>
+        /// Camada da chamada no "fone" do jogador (2D parcial). Gravações reais tocam inteiras
+        /// (<paramref name="exclusive"/>); placeholders procedurais são sobrepostos em one-shot.
+        /// </summary>
+        public void PlayCallLayer(CallLayer layer, AudioClip clip, float volume = 1f, bool exclusive = false)
         {
             if (m_Call == null || clip == null) return;
             m_Call.volume = CallVolume * Mathf.Clamp01(volume);
+            if (exclusive)
+            {
+                m_Call.Stop();
+                m_Call.clip = clip;
+                m_Call.Play();
+                return;
+            }
+
             m_Call.PlayOneShot(clip);
         }
 
+        public void StopCall()
+        {
+            if (m_Call != null) m_Call.Stop();
+        }
+
+        /// <summary>
+        /// Sustos: nunca mais de +6 dB acima da cena (AUDIO §4). Com "reduzir intensidade",
+        /// o volume cai pela metade.
+        /// </summary>
         public void PlayScare(AudioClip clip, float volume = 1f)
         {
             if (m_Scare == null || clip == null) return;
-            m_Scare.volume = ScareVolume * Mathf.Clamp01(volume);
+            var settings = GameManager.Instance != null ? GameManager.Instance.Settings : null;
+            var reduce = settings != null && settings.reduceScareIntensity ? 0.5f : 1f;
+            m_Scare.volume = Mathf.Min(ScareVolume * Mathf.Clamp01(volume) * reduce, Mathf.Max(AmbienceVolume, SfxVolume) * 2f);
             m_Scare.PlayOneShot(clip);
         }
 

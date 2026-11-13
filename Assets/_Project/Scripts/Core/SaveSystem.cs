@@ -8,14 +8,36 @@ namespace ExtensaoZero.Core
     [Serializable]
     public sealed class SaveData
     {
-        public int version = 1;
+        public const int CurrentVersion = 2;
+
+        public int version = CurrentVersion;
         public int chapter = 0;
         public int missionStep = 0;
         public float playTime = 0f;
         public bool missionCompleted = false;
+        public int difficulty = 1;
+        public int loadoutMask = 0;
+        public int isolatedCircuits = 0;
         public List<string> evidenceIds = new List<string>();
         public List<string> unlocked = new List<string>();
         public List<string> seenCalls = new List<string>();
+        public List<int> chaptersCompleted = new List<int>();
+        public List<string> flags = new List<string>();
+        public List<int> endingsSeen = new List<int>();
+
+        public bool HasFlag(string flag) => !string.IsNullOrEmpty(flag) && flags.Contains(flag);
+
+        public bool AddFlag(string flag)
+        {
+            if (string.IsNullOrEmpty(flag) || flags.Contains(flag)) return false;
+            flags.Add(flag);
+            return true;
+        }
+
+        public void Unlock(string id)
+        {
+            if (!string.IsNullOrEmpty(id) && !unlocked.Contains(id)) unlocked.Add(id);
+        }
     }
 
     /// <summary>
@@ -39,6 +61,16 @@ namespace ExtensaoZero.Core
                 data.evidenceIds ??= new List<string>();
                 data.unlocked ??= new List<string>();
                 data.seenCalls ??= new List<string>();
+                data.chaptersCompleted ??= new List<int>();
+                data.flags ??= new List<string>();
+                data.endingsSeen ??= new List<int>();
+                if (data.version < SaveData.CurrentVersion)
+                {
+                    // Migração da fatia (v1): a primeira missão concluída equivale ao prólogo.
+                    if (data.missionCompleted && !data.chaptersCompleted.Contains(0)) data.chaptersCompleted.Add(0);
+                    data.version = SaveData.CurrentVersion;
+                }
+
                 return data;
             }
             catch (Exception e)

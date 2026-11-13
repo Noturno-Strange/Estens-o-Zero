@@ -155,18 +155,54 @@ namespace ExtensaoZero.Audio
             });
         }
 
+        /// <summary>
+        /// Ambiência em loop por setor. As frequências são múltiplos inteiros de 1/6 Hz, então o
+        /// clip de 6 s fecha o ciclo sem emenda (sem o "pulso de silêncio" da versão anterior).
+        /// </summary>
         public static AudioClip Ambience(string zone)
         {
-            var seed = string.IsNullOrEmpty(zone) ? 0 : zone.GetHashCode();
-            var key = "amb_" + seed;
+            var key = "amb_" + (zone ?? "default");
+            float hum, mid, air, drip;
+            switch (zone)
+            {
+                case "sala_central": hum = 60f; mid = 120f; air = 0.016f; drip = 0f; break;
+                case "recepcao": hum = 50f; mid = 0f; air = 0.024f; drip = 0f; break;
+                case "arquivo": hum = 0f; mid = 100f; air = 0.012f; drip = 0f; break;
+                case "corredor": hum = 42f; mid = 84f; air = 0.02f; drip = 0f; break;
+                case "tuneis": hum = 30f; mid = 0f; air = 0.022f; drip = 1f; break;
+                case "energia": hum = 60f; mid = 180f; air = 0.014f; drip = 0f; break;
+                case "original": hum = 0f; mid = 0f; air = 0.008f; drip = 0.5f; break;
+                default: hum = 42f; mid = 83f; air = 0.018f; drip = 0f; break;
+            }
+
             return Get(key, 6f, t =>
             {
-                var env = Mathf.Clamp01(t * 0.8f) * Mathf.Clamp01((6f - t) * 0.8f);
-                var low = Mathf.Sin(2f * Mathf.PI * 42f * t) * 0.05f;
-                var mid = Mathf.Sin(2f * Mathf.PI * 83f * t) * 0.02f;
-                var air = Noise(t) * 0.018f;
-                var pulse = 0.85f + 0.15f * Mathf.Sin(t * 0.9f);
-                return (low + mid + air) * env * pulse;
+                var low = hum > 0f ? Mathf.Sin(2f * Mathf.PI * hum * t) * 0.045f : 0f;
+                var m = mid > 0f ? Mathf.Sin(2f * Mathf.PI * mid * t) * 0.018f : 0f;
+                var pulse = 0.85f + 0.15f * Mathf.Sin(2f * Mathf.PI * t / 6f);
+                var d = 0f;
+                if (drip > 0f)
+                {
+                    var phase = (t * 0.5f) % 1f;
+                    d = phase < 0.03f ? Mathf.Sin(2f * Mathf.PI * 1400f * t) * Mathf.Exp(-phase * 160f) * 0.12f * drip : 0f;
+                }
+
+                return (low + m + Noise(t) * air) * pulse + d;
+            });
+        }
+
+        /// <summary>Camada de ambiente das chamadas: textura curta e abafada, diferente por chamada.</summary>
+        public static AudioClip AmbienceLayer(string callId)
+        {
+            var seed = 0;
+            if (callId != null) foreach (var c in callId) seed = seed * 31 + c;
+            var key = "callamb_" + (seed & 0xFFFF);
+            var freq = 70f + (seed & 0x3F);
+            return Get(key, 2.2f, t =>
+            {
+                var env = Mathf.Clamp01(t * 3f) * Mathf.Clamp01((2.2f - t) * 3f);
+                var knock = (t % 0.9f) < 0.05f ? Mathf.Sin(2f * Mathf.PI * freq * t) * Mathf.Exp(-(t % 0.9f) * 60f) * 0.5f : 0f;
+                return (knock + Noise(t) * 0.04f + Mathf.Sin(2f * Mathf.PI * 60f * t) * 0.03f) * env;
             });
         }
 

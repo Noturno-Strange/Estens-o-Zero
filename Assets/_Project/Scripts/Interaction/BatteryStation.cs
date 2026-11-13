@@ -17,11 +17,12 @@ namespace ExtensaoZero.Interaction
 
         public override void Interact(PlayerInteractor interactor)
         {
-            if (Time.time < m_NextRecharge) return;
-            m_NextRecharge = Time.time + 2f;
+            if (interactor == null || Time.time < m_NextRecharge && IsLocal(interactor)) return;
+            if (IsLocal(interactor)) m_NextRecharge = Time.time + 2f;
             interactor.Equipment?.RechargeFlashlight(rechargeAmount);
-            GameManager.Instance.Audio.PlayUiClick();
-            GameManager.Instance.UI.ShowSubtitle("ENERGIA", "Lanterna recarregada.", UITheme.Green, 2.5f);
+            if (!IsLocal(interactor)) return;
+            GameManager.Instance?.Audio?.PlayUiClick();
+            TellActor(interactor, "ENERGIA", "Lanterna recarregada.", UITheme.Green, 2.5f);
         }
     }
 }
