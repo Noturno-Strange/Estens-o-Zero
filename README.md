@@ -30,6 +30,7 @@ Jogo de terror psicológico cooperativo em primeira pessoa para 1 a 4 jogadores,
 - **Dificuldade:** Investigação, Operação e Ruptura. A **seed** do host varia a ordem das chamadas, a posição do cabo e quais circuitos estão contaminados.
 - **Multiplayer direto:** host e cliente com NGO + Unity Transport. Conexão por IP/porta ou convite colável `EZ1:`, chave aleatória, descoberta LAN e aprovação por versão, chave, vagas e estado da missão. Interações validadas pelo host.
 - **Interface completa:** menu, briefing com capítulos, equipamento e dificuldade, lobby, HUD, caderno por categoria, mapa, pausa, configurações, tela final com relatório e F3 com estatísticas.
+- **Cenário (projeto.md §15):** área externa de retransmissão com torre e baliza, recepção, alojamentos antigos, central, salas de operação, arquivo de vozes, corredor técnico, depósito, arquivo morto, subsolo e túneis, sala de energia e central original. Texturas PBR e 26 modelos CC0 da Poly Haven ([CREDITS.md](CREDITS.md)), luminárias com sombra e SSAO.
 - **Salvamento local** em JSON: progresso, evidências, marcas de campanha, finais vistos e capas do caderno. Sem nuvem e sem conta.
 
 ## Requisitos
@@ -128,7 +129,7 @@ tools/compile-check/ verificação sem Unity (compilação + testes de lógica)
 
 - **Sem validação na Unity desta versão:** podem existir erros que só a Unity 6 mostra, como APIs novas ou o code-gen de RPC do Netcode. O primeiro passo é abrir o projeto, rodar os testes e jogar o prólogo.
 - **Vozes placeholder:** a voz é sintetizada e não inteligível. A informação chega por legendas e pelo caderno. As gravações reais entram nos campos `AudioClip` de cada camada (veja [AUDIO_DIRECTION.md](AUDIO_DIRECTION.md)).
-- **Arte procedural:** geometria modular e materiais gerados em código. Ainda não é a arte final.
+- **Arte:** texturas e modelos CC0 adaptados à paleta, mais o kit modular em código. Ainda não há modelos próprios (personagens, Assinante, central) nem iluminação pré-calculada. No primeiro import, a Unity gera os `.meta` dos assets de arte; faça commit deles.
 - **Multiplayer não testado entre processos reais.** O cliente envia a própria posição e o host valida os limites; não é movimento autoritativo por input (ADR-016). Não há migração de host, reconexão automática, UPnP, IPv6 no host nem chat de voz.
 - **Assinante:** os efeitos são locais. Em grupo, cada jogador pode vê-la em um lugar ligeiramente diferente, o que é intencional, mas ainda não foi validado em playtest.
 - **Desempenho não medido.** Nenhuma compatibilidade de hardware é declarada.

@@ -12,6 +12,7 @@
 | Input System | 1.20.1 | teclado/mouse (gameplay) |
 | uGUI | 2.0.0 | interface (fonte built-in) |
 | Test Framework | 1.6.0 | EditMode/PlayMode |
+| glTFast | 6.20.0 | importação dos modelos CC0 (glTF) |
 | Linux Build Support | Mono | build nativo |
 
 Nenhum serviço externo obrigatório. Nenhuma conta. Nenhum relay, lobby ou matchmaker.
@@ -94,6 +95,7 @@ MainMenu → Lobby → Playing …                                     ↘ Disco
 - Ganchos: telefone atendido/encerrado, cabo, `EvaluateConnection` → `ConnectionVerdict` (Solution, Progress, NoAnswer, Contaminated, Neutral), isolador, evidência e `HandleEvent(string)` para eventos de mundo (`zone:*`, `tape:*`, `junction:*`, `breaker:*`, `circuit:*`, `door.open:*`, `heard:*`, `ending:*`, `subscriber.*`, `radio`).
 
 ### Mundo
+- `ArtLibrary` carrega as superfícies PBR e os modelos CC0 de `Resources/Art`, com substituto procedural; `ModularMesh` gera caixas com UV em escala de mundo.
 - `WorldBuilder` constrói a geometria modular e registra tudo em `WorldContext` (dicionários por id).
 - `WorldCommands` aplica comandos de texto determinísticos (`door.unlock:x`, `pickup.show:label:anchor`, `junction.contaminate:i`, `lights.off:sector`, `subscriber.manifest:anchor:mode`…). O host aplica e replica.
 - `SectorSystem` faz o culling de luzes por setor (atual + vizinhos), troca a ambiência e marca setores descobertos para o mapa. Atualiza a cada 0,4 s.

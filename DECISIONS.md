@@ -153,3 +153,11 @@
 **Decisão:** a voz "responde" às ações da equipe: descreve a ordem dos lugares visitados (Cap. 1) e cita frases do caderno (Cap. 4). Nenhum áudio de jogador é capturado.
 
 **Consequências:** o efeito de "ela ouve vocês" se mantém sem risco de privacidade.
+
+## ADR-020 — Assets CC0 (Poly Haven) via glTFast, com substituto procedural
+
+**Contexto:** cubos com cor chapada não entregavam a identidade visual pedida (projeto.md §3) e a ausência de sombras nas luzes adicionais fazia a luz atravessar paredes ("paredes transparentes").
+
+**Decisão:** texturas PBR e modelos CC0 da Poly Haven em `Resources/Art`, importados pelo pacote oficial glTFast 6.20 e tonalizados para a paleta. Malhas com UV em escala de mundo. Luzes principais como spots para baixo, com sombra; sombras de luzes adicionais e SSAO ligados no URP (`ProjectSetup` aplica automaticamente). A ADR-001 continua valendo: o mundo segue montado em runtime, e cada modelo tem substituto procedural se faltar.
+
+**Consequências:** visual muito mais próximo de um jogo comercial, com licença livre (CREDITS.md). O repositório cresce cerca de 80 MB. A iluminação pré-calculada ainda não é possível com o mundo em runtime; ela fica para quando os setores forem convertidos em cena.

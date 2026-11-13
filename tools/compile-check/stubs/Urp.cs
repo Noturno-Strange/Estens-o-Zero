@@ -62,7 +62,8 @@ namespace UnityEngine.Rendering.Universal
     public sealed class ChromaticAberration : VolumeComponent { public ClampedFloatParameter intensity; }
     public sealed class LensDistortion : VolumeComponent { public ClampedFloatParameter intensity; }
 
-    public class ScriptableRendererData : ScriptableObject { }
+    public abstract class ScriptableRendererFeature : ScriptableObject { }
+    public class ScriptableRendererData : ScriptableObject { public List<ScriptableRendererFeature> rendererFeatures = new List<ScriptableRendererFeature>(); public new void SetDirty() { } }
     public class UniversalRendererData : ScriptableRendererData { }
 
     public class UniversalRenderPipelineAsset : RenderPipelineAsset

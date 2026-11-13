@@ -56,8 +56,16 @@ Ainda não existem testes automatizados para os capítulos 1–5; eles são cobe
 - [ ] Dificuldade alterna Investigação, Operação e Ruptura.
 - [ ] F3 mostra FPS, memória e setor.
 
+### 4.1b Cenário e visual
+- [ ] Nenhum aviso `[EZ] Modelo ausente` ou `[EZ] Textura ausente` no Console (se aparecer, o glTFast não importou: confira o Package Manager).
+- [ ] Renderer `EZ_UniversalRenderer` com a feature SSAO; URP com sombras de luzes adicionais ligadas.
+- [ ] Nenhuma luz atravessa paredes (compare salas vizinhas com uma luz apagada pelo F3/Inspector).
+- [ ] Texturas não esticadas; normal maps com relevo (sem aviso "Fix now" de normal map).
+- [ ] Área externa: céu escuro, névoa, torre com baliza piscando, cerca sem saída.
+- [ ] Props apoiados no chão/paredes (nada flutuando ou atravessado); portas abrem sem atravessar móveis.
+
 ### 4.2 Prólogo
-- [ ] Spawn na recepção; o telefone da central toca; rádio de apoio repete o briefing.
+- [ ] Spawn no pátio externo, de frente para a entrada; a porta da recepção abre; o telefone da central toca; rádio de apoio repete o briefing.
 - [ ] Q alterna as 4 camadas; o DTMF toca 2-1-4 completo.
 - [ ] Cabo no arquivo; G solta e o cabo pode ser recolhido de novo; com o cabo plugado, G desconecta.
 - [ ] 214→9: contaminação, Linha Ocupada com frequência de retorno no HUD; girar com Q até o número e segurar libera; a extensão 201 fica vermelha e "Restaurar" também libera.

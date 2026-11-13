@@ -28,6 +28,7 @@ namespace ExtensaoZero.Environment
         public Transform SubscriberAnchor;
         public Transform IsolatorAnchor;
         public IsolatorLever Isolator;
+        public Light Moon;
         public CorridorTrigger CorridorTrigger;
 
         public readonly List<Light> CeilingLights = new List<Light>();

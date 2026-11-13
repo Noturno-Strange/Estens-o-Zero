@@ -83,6 +83,11 @@ Ferramentas: Unity Profiler, Frame Debugger, `nvidia-smi`/`radeontop`, RenderDoc
   - eventos e oclusão atualizados por intervalo, não por frame.
 - O overlay F3 mostra FPS, tempo de frame, memória alocada, a GPU e a VRAM declarada pelo driver.
 
+### Arte (esta versão)
+
+- 14 texturas de superfície (albedo + normal, 1024 px) e 26 modelos CC0 (texturas de 1K), com teto de 1024 px forçado no import (`ArtImportSettings`).
+- Luzes principais são spots com sombra (no máximo ~4 sombras por região) e SSAO no renderer. Esse é o maior custo novo: **medir antes de declarar o alvo de 4 GB**. Na qualidade Baixa, reduza as luzes adicionais (já feito: 4) e, se necessário, desligue o SSAO no renderer.
+
 ## 7. Riscos
 
 - Sombras em luzes demais no corredor.

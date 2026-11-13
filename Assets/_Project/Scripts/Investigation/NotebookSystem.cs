@@ -103,6 +103,9 @@ namespace ExtensaoZero.Investigation
             Add("manual_trunk0", "Manual de operação", "\"Conexões de emergência usam o tronco zero.\" Página dobrada, assinada por Í. Vilar.", EvidenceCategory.Document, "Recepção");
             Add("map_board", "Planta da estação", "Recepção, central, arquivo de vozes, corredor técnico, arquivo morto e acesso ao subsolo. A central original aparece riscada.", EvidenceCategory.Location, "Recepção");
 
+            Add("dorm_roster", "Escala de quartos — 1987", "Quarto 3: C. Prado e A. Prado (estagiária, 1983–1987). Um cobertor dobrado que ninguém recolheu.", EvidenceCategory.Document, "Alojamentos");
+            Add("call_log_1987", "Registro de chamadas — 14/03/1987", "02:51 emergência do povoado para o tronco 0. 03:05 queda de tensão. 03:12 sem registro. O relógio da recepção parou às 03:12.", EvidenceCategory.Document, "Salas de operação");
+
             // Capítulo 1
             Add("ch1_traffic", "Tráfego fantasma", "Três extensões fora de serviço registram tráfego. O rastreio é feito pelo tronco zero.", EvidenceCategory.Signal, "Central");
             Add("phantom_205", "Extensão 205 — recepção", "Rastreada até o telefone da recepção. Relógio, chuva em vidro.", EvidenceCategory.Extension, "Rastreio");

@@ -33,6 +33,7 @@ namespace ExtensaoZero.EditorTools
             EnsureFolders();
             ConfigurePlayerSettings();
             ConfigureUrp();
+            EnsureRenderingFeatures();
             CreateDefaultMaterial();
             CreateVolumeProfile();
             CreateScene();
@@ -134,6 +135,84 @@ namespace ExtensaoZero.EditorTools
             QualitySettings.renderPipeline = pipeline;
             EditorUtility.SetDirty(pipeline);
             EditorUtility.SetDirty(renderer);
+        }
+
+        /// <summary>
+        /// Sombras de luzes adicionais (sem elas a luz das salas vizinhas atravessa as paredes)
+        /// e SSAO no renderer. Roda também automaticamente ao abrir o editor, uma vez por sessão.
+        /// </summary>
+        [MenuItem("Extensao Zero/Configurar Iluminação (sombras + SSAO)")]
+        public static void EnsureRenderingFeatures()
+        {
+            try
+            {
+                var pipeline = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(UrpPath);
+                if (pipeline != null)
+                {
+                    var serialized = new SerializedObject(pipeline);
+                    SetBool(serialized, "m_AdditionalLightShadowsSupported", true);
+                    SetBool(serialized, "m_SoftShadowsSupported", true);
+                    SetInt(serialized, "m_AdditionalLightsPerObjectLimit", 8);
+                    serialized.ApplyModifiedPropertiesWithoutUndo();
+                    EditorUtility.SetDirty(pipeline);
+                }
+
+                var renderer = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(RendererPath);
+                if (renderer == null) return;
+                var ssaoType = Type.GetType("UnityEngine.Rendering.Universal.ScreenSpaceAmbientOcclusion, Unity.RenderPipelines.Universal.Runtime");
+                if (ssaoType == null)
+                {
+                    Debug.LogWarning("[EZ] SSAO não encontrado nesta versão do URP; seguindo sem ele.");
+                    return;
+                }
+
+                foreach (var existing in renderer.rendererFeatures)
+                {
+                    if (existing != null && existing.GetType() == ssaoType) return;
+                }
+
+                var feature = (ScriptableRendererFeature)ScriptableObject.CreateInstance(ssaoType);
+                feature.name = "SSAO";
+                AssetDatabase.AddObjectToAsset(feature, renderer);
+                renderer.rendererFeatures.Add(feature);
+                var rendererSerialized = new SerializedObject(renderer);
+                var map = rendererSerialized.FindProperty("m_RendererFeatureMap");
+                if (map != null && AssetDatabase.TryGetGUIDAndLocalFileIdentifier(feature, out string _, out long localId))
+                {
+                    map.arraySize++;
+                    map.GetArrayElementAtIndex(map.arraySize - 1).longValue = localId;
+                    rendererSerialized.ApplyModifiedPropertiesWithoutUndo();
+                }
+
+                renderer.SetDirty();
+                EditorUtility.SetDirty(renderer);
+                AssetDatabase.SaveAssets();
+                Debug.Log("[EZ] SSAO adicionado ao renderer e sombras de luzes adicionais ativadas.");
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[EZ] Não foi possível configurar a iluminação automaticamente: " + e.Message);
+            }
+        }
+
+        private static void SetBool(SerializedObject serialized, string property, bool value)
+        {
+            var p = serialized.FindProperty(property);
+            if (p != null) p.boolValue = value;
+        }
+
+        private static void SetInt(SerializedObject serialized, string property, int value)
+        {
+            var p = serialized.FindProperty(property);
+            if (p != null) p.intValue = value;
+        }
+
+        [InitializeOnLoadMethod]
+        private static void AutoConfigureRendering()
+        {
+            if (SessionState.GetBool("EZ_RenderingConfigured", false)) return;
+            SessionState.SetBool("EZ_RenderingConfigured", true);
+            EditorApplication.delayCall += EnsureRenderingFeatures;
         }
 
         private static void CreateDefaultMaterial()

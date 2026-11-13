@@ -10,18 +10,23 @@ namespace ExtensaoZero.Environment
     {
         private static Font s_Font;
 
+        /// <summary>
+        /// Caixa com malha de UV em escala de mundo (a textura repete, não estica). O tamanho fica
+        /// na malha; a escala do transform é 1, então filhos não herdam distorção.
+        /// </summary>
         public static GameObject CreateBox(Transform parent, string name, Vector3 position, Vector3 size, Material material, bool collider = true)
         {
-            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.name = name;
+            var go = new GameObject(name);
             go.transform.SetParent(parent, false);
             go.transform.localPosition = position;
-            go.transform.localScale = size;
-            ApplyMaterial(go, material);
-            if (!collider)
+            var filter = go.AddComponent<MeshFilter>();
+            filter.sharedMesh = ModularMesh.Box(size, ArtLibrary.TileOf(material));
+            var renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            if (collider)
             {
-                var box = go.GetComponent<Collider>();
-                if (box != null) Object.Destroy(box);
+                var box = go.AddComponent<BoxCollider>();
+                box.size = size;
             }
 
             return go;

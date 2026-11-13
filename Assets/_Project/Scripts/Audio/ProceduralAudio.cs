@@ -172,6 +172,8 @@ namespace ExtensaoZero.Audio
                 case "tuneis": hum = 30f; mid = 0f; air = 0.022f; drip = 1f; break;
                 case "energia": hum = 60f; mid = 180f; air = 0.014f; drip = 0f; break;
                 case "original": hum = 0f; mid = 0f; air = 0.008f; drip = 0.5f; break;
+                case "externo": hum = 0f; mid = 0f; air = 0.05f; drip = 0f; break;
+                case "deposito": hum = 0f; mid = 70f; air = 0.02f; drip = 0.25f; break;
                 default: hum = 42f; mid = 83f; air = 0.018f; drip = 0f; break;
             }
 

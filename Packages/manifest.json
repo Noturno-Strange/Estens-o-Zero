@@ -1,12 +1,7 @@
 {
   "dependencies": {
+    "com.unity.cloud.gltfast": "6.20.0",
     "com.unity.inputsystem": "1.20.1",
-    "com.unity.netcode.gameobjects": "2.14.0",
-    "com.unity.render-pipelines.universal": "17.3.0",
-    "com.unity.test-framework": "1.6.0",
-    "com.unity.textmeshpro": "5.0.0",
-    "com.unity.transport": "2.6.0",
-    "com.unity.ugui": "2.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.assetbundle": "1.0.0",
@@ -36,6 +31,12 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
+    "com.unity.modules.xr": "1.0.0",
+    "com.unity.netcode.gameobjects": "2.14.0",
+    "com.unity.render-pipelines.universal": "17.3.0",
+    "com.unity.test-framework": "1.6.0",
+    "com.unity.textmeshpro": "5.0.0",
+    "com.unity.transport": "2.6.0",
+    "com.unity.ugui": "2.0.0"
   }
 }

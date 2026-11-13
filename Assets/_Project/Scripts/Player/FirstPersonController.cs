@@ -49,6 +49,9 @@ namespace ExtensaoZero.Player
             Camera.fieldOfView = fieldOfView;
             Camera.nearClipPlane = 0.03f;
             Camera.farClipPlane = 90f;
+            // Céu noturno sólido na cor da névoa: o horizonte some na neblina.
+            Camera.clearFlags = CameraClearFlags.SolidColor;
+            Camera.backgroundColor = Environment.LightingRig.FogColor;
             Camera.tag = "MainCamera";
             cameraGo.AddComponent<AudioListener>();
             CameraTransform = cameraGo.transform;

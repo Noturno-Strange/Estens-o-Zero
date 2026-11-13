@@ -90,6 +90,9 @@ namespace ExtensaoZero.Environment
                 }
             }
 
+            // A lua só ilumina quem está do lado de fora (ou vendo a entrada da recepção).
+            if (m_World.Moon != null) m_World.Moon.enabled = sector.Id == "exterior" || sector.Id == "reception";
+
             if (m_Manager.State == GameState.Playing) m_Manager.Audio?.PlayAmbient(sector.Ambience);
         }
     }

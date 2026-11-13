@@ -34,6 +34,23 @@ A paleta não é obrigatória em todos os setores. O arquivo usa creme/âmbar; o
 
 ## 4. Materiais e texturas
 
+> **Implementado:** superfícies com texturas PBR CC0 da Poly Haven (albedo + normal, 1K), tonalizadas para a paleta acima e aplicadas em malhas com UV em escala de mundo (`ModularMesh`), sem esticar em paredes grandes. Lista completa em [CREDITS.md](CREDITS.md). A tabela abaixo é a intenção original; o mapeamento real está em `ArtLibrary` (`Surface`).
+
+| Superfície | Textura CC0 | Uso |
+|---|---|---|
+| Parede institucional (2 tons + friso + rodapé) | painted_plaster_wall | central, recepção, corredor, salas de operação |
+| Parede descascada | peeling_painted_wall | arquivo de vozes, arquivo morto, alojamentos |
+| Concreto frio | concrete_wall_008 | túneis, acesso ao subsolo |
+| Blocos de concreto | concrete_block_wall | fachada, depósito, sala de energia |
+| Linóleo | old_linoleum_flooring_01 | central, salas de operação |
+| Ladrilho gasto | worn_tile_floor | recepção |
+| Tábuas escuras | dark_wooden_planks | arquivos, alojamentos, portas de madeira, gabinete da central |
+| Piso de concreto | concrete_floor_worn_001 | corredor, depósito, túneis |
+| Chapa metálica / ferrugem / zinco | metal_plate_02 / rusty_metal_02 / corrugated_iron_02 | painéis, canos, torre, cerca |
+| Terreno / asfalto | dry_ground_01 / asphalt_02 | área externa |
+
+Intenção original (procedural, mantida como substituto se uma textura não importar):
+
 Texturas geradas proceduralmente nesta fatia (256–512 px, repetição, mipmaps):
 
 | Material | Textura | Uso |
@@ -58,6 +75,9 @@ Regras:
 - Normal maps apenas em painéis e pisos; gerados a partir do height quando possível.
 
 ## 5. Kit modular
+
+> **Implementado:** paredes com barrado, friso e rodapé; batentes; luminárias pendentes; mesa telefônica de cordão com gabinete de madeira, medidores e prateleira de chaves; telefones de baquelite; e 26 modelos CC0 (mesas, cadeiras, arquivos, estantes, racks, caixas, barris, geradores, quadros de força, extintores, rádio, gravador cassete, relógio, camas, máscaras de gás, postes, telefone público, porta de enrolar). Áreas da estação: área externa de retransmissão (torre em treliça com baliza), recepção, alojamentos antigos, central, salas de operação, arquivo de vozes, corredor técnico, depósito, arquivo morto, subsolo/túneis, sala de energia e central original.
+
 
 Um conjunto pequeno de peças cobre a instalação:
 
